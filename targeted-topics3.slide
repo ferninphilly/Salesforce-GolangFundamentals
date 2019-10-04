@@ -1,0 +1,287 @@
+Golang Targeted Topics Part 3: User-Defined Types/OO
+"Go is expressive, concise, clean, and efficient"
+25 Jan 2019
+
+Dave Wade-Stein
+DevelopIntelligence
+dws@developintelligence.com
+http://www.developintelligence.com
+
+* User-Defined Types
+
+* struct
+- typed collections of fields
+- useful for grouping data together (like structs in other languages)
+
+.play -edit src/struct.go /START OMIT/,/END OMIT/
+
+* struct (cont'd)
+- you can name the fields when initializing a struct
+- you can leave out fields, which will be set to zero
+- & operator yields a pointer to the struct
+- use a dot to access the fields
+
+.play -edit src/struct2.go /START OMIT/,/END OMIT/
+
+* Anonymous struct
+- why an anonymous struct?
+- e.g., grouped globals
+
+ var config struct {
+ 	APIKey string
+ 	IPAddr string
+ }
+ config.APIKey = "BADC0C0A"
+ config.IPAddr = "1.1.1.1"
+
+- test tables
+
+ var indexRuneTests = []struct {
+ 	s    string
+ 	rune rune
+ 	out  int
+ }{
+ 	{"a A x", 'A', 2},
+ 	{"some_text=some_value", '=', 9},
+ 	{"☺a", 'a', 3},
+ 	{"a☻☺b", '☺', 4},
+ }
+
+* Reading/Writing Files
+
+* Reading Files
+# (cont'd)
+- here's an example using the `os` package to read from `/etc/passwd`
+
+.play -edit src/read.go /START OMIT/,/END OMIT/
+
+* Writing Files
+
+.play -edit src/write.go /START OMIT/,/END OMIT/
+
+* More Reading Files
+
+.code src/read2.go /START OMIT/,/END OMIT/
+
+* More Reading Files (cont'd)
+
+.play -edit src/read2.go /START2 OMIT/,/END2 OMIT/
+
+* Reading a Text File Line by Line
+- easiest to use a `Scanner` in the `bufio` package
+- substitute `os.Stdin` to read from standard input
+
+.play -edit src/scan.go /START OMIT/,/END OMIT/
+
+* Exercise: Reading from Files
+- write a Go program to read a file and count the number of occurrences of each word in the file
+- use a `map` indexed by word, to count the occurrences
+- read the file a line at a time, and split the line into words (hint: look at `strings` package)
+- print out words and counts (don't worry about sorting, it's tricky)
+- EXTRA: treat *The* and *the* as the same word when counting (hint: look at `strings` package)
+- EXTRA: remove punctuation, so *Hamlet,* == *Hamlet* (hint: look at Regexp package)
+.link http://bit.ly/BillShak Test on Shakespeare's Hamlet
+
+* Concurrency
+
+* What is Concurrency?
+
+- Hint: it's not parallelism
+- concurrency = the composition of independently executing things (e.g., functions)
+- parallelism = simultaneous execution of multiple things (which may or may not be related)
+- concurrency is about dealing with many things at once (i.e., it's about structure)
+- parallelism is about doing many things at once (i.e., it's about execution)
+- consider an OS which manages a number of I/O devices: mouse, keyboard, video, etc.
+- it's concurrent, but if only one CPU, clearly not parallel
+
+* Go Scheduler Overview
+- a goroutine (G) is like a lightweight thread which we will examine shortly
+- in order for an M (operating system thread) to execute a G it must acquire a (logical) processor (P), also known as a context 
+
+.image images/scheduler-objects.jpg
+.link http://morsmachine.dk/go-scheduler
+
+* Concurrency: Go vs. Others
+concurrent programming is often difficult due to the subtleties required to correctly access shared data
+
+Go takes a different approach–shared data are passed back and forth on channels
+
+- they are not, in fact, actively shared by separate threads
+- only one goroutine has access to the data at any given time
+- data races cannot occur, by design
+
+to encourage this way of thinking Golang has reduced it to a slogan:
+
+* Do not communicate by sharing memory; instead, share memory by communicating!
+
+* Goroutines
+- a lightweight thread of execution (not an actual OS thread)
+- invoked by keyword go preceding a function call (or anonymous function)
+
+.play -edit src/goroutine.go
+
+* Gouroutines (cont'd)
+- another example...run directly, not in playground
+.code src/goroutine2.go
+
+* Channels
+- typed "conduits" through which you can send and receive data using the channel operator `<-`
+- data moves in the direction of the arrow
+- create a new channel using built-in function `make()`
+- sending and receiving are blocking operations
+
+.play -edit src/channel.go /START OMIT/,/END OMIT/
+
+* Exercise: Relay Race
+- write a program to simulate a relay race with 4 runners
+- create a func called `runner` with an int channel as a parameter
+- the function should receive the "baton" via that channel (in reality it will receive a runner number, from 1-4)
+- once the baton is received, it will print a message saying "Runner x is running" and then it will fire off the next goroutine representing the next runner in line
+- when runner 4 receives the baton, it is the last runner, so it should not fire off another goroutine
+
+* Buffered Channels
+- channels are unbuffered by default, i.e., they only accept a send operation if there is a corresponding receive operation ready to receive the data
+- buffered channels receive and hold send ops without a corresponding receiver
+
+.play -edit src/channel2.go /START OMIT/,/END OMIT/
+
+* Buffered Channels (cont'd)
+- but if you try to put too much in the buffered channel...
+
+.play -edit src/channel3.go
+
+* Buffered Channels (cont'd)
+- but if we use a goroutine, it will work...
+
+.play -edit src/channel4.go
+
+* Channel Synchonization
+- channels can be used to synchronize execution across goroutines
+- we will use a blocking receive to wait for our goroutine to finish
+
+.play -edit src/channel5.go /START OMIT/,/END OMIT/
+
+* Channel Directions
+- when using a channel as a parameter to a function, you can specify whether the channel is meant to send or receive
+
+.play -edit src/channel6.go /START OMIT/,/END OMIT/
+
+* The select Statement
+- lets a goroutine wait on multiple communication operations
+- blocks until one of its cases can run, then it executes that case
+- if more than one are ready it chooses one at random
+
+.play -edit src/select.go /START OMIT/,/END OMIT/
+
+* Timeouts
+we need to be able to time out if
+
+- we're connecting to external resources
+- we need to bound execution time
+- channels plus the `select` statement let us time out elegantly
+
+.play -edit src/select2.go /START OMIT/,/END OMIT/
+
+* Non-Blocking Channel Operations
+- sends and receives on channels are blocking
+- ...but, we use `select` with a `default` to implement non-blocking sends and receives
+
+.play -edit src/select3.go /START OMIT/,/END OMIT/
+
+* Non-Blocking Channel Operations (cont'd)
+- here is a non-blocking multi-way `select`
+
+.play -edit src/select4.go 
+
+* Closing Channels
+
+.play -edit src/closechannel.go /START OMIT/,/END OMIT/
+
+* Range on a Channel
+- receive values repeatedly from a channel until it is closed
+- we can close a channel with data still in it, and have the data received afterwards
+
+.play -edit src/rangeonchannel.go /START OMIT/,/END OMIT/
+
+* Waiting for Goroutines
+- a `sync.WaitGroup` waits for a collection of goroutines to finish
+
+.play -edit src/waitingforgo.go /START OMIT/,/END OMIT/
+
+* Exercise: Waiting for Goroutines
+- create 25 goroutines, each of which sleeps a random number of seconds before completing
+- after sleeping, the go routine should print a message like _Goroutine_ _n_ _done_ where n is the number of the goroutine
+- when all 25 are done, the main program should notify you that all goroutines have finished
+
+* More Interesting Example
+- go get a bunch of URLs
+- spin up a goroutine for each one
+
+.play -edit src/waitingforgo2.go /START OMIT/,/END OMIT/
+
+* Mutual Exclusion (sync.Mutex)
+- what if we just want to make sure only one goroutine can access a variable at a time to avoid conflicts?
+- this concept is called mutual exclusion and the data structure that provides it is typically called a mutex
+- Go provides `sync.Mutex` and its two methods, `Lock` and `Unlock`
+- if a `sync.Mutex` object is already locked when a goroutine tried to lock it, the goroutine will block until the holder of the lock unlocks it
+
+ import "sync"
+ var state = make(map[int]int) // For our example the `state` will be a map
+ var mutex = &sync.Mutex{}     // This `mutex` will synchronize access to `state`
+ var readOps uint64            // We'll keep track of how many read...
+ var writeOps uint64           // ...and write operations we do
+
+* Mutual Exclusion (cont'd)
+
+.code src/mutex.go
+
+* Mutual Exclusion (cont'd)
+
+.play -edit src/mutex2.go /START OMIT/,/END OMIT/
+
+* Documentation
+
+* Documentation
+- Go takes documentation seriously
+- documentation is integral to making software accessible and maintainable
+- docs should be coupled to the code so they evolve along with the code
+- historically it hasn't been so easy to produce docs
+- Python has Docstrings, Java has Javadoc ... Go has `godoc`
+- the easier it is for programmers to produce good docs, the better for everyone
+- `godoc` parses Go source code–including comments-and produces documentation as HTML or plain text
+- the result is documentation tightly coupled with the code it documents
+- conceptually related to Docstring and Javadoc but simpler
+- comments read by `godoc` are not language constructs (like Docstrings)
+- the comments don't have to have their own machine-readable syntax (like Javadoc)
+
+* How Does godoc Work?
+- to document a type/variable/constant/function/package, write a regular comment directly preceding its declaration, w/no intervening blank line
+- godoc presents that comment as text alongside the item it documents
+- for e.g., this is the documentation for `fmt.Fprint`
+
+ // Fprint formats using the default formats for its operands and writes to w.
+ // Spaces are added between operands when neither is a string.
+ // It returns the number of bytes written and any write error encountered.
+ func Fprint(w io.Writer, a ...interface{}) (n int, err error) {
+
+the above comment is a complete sentence, beginning with the name of the element it describes, which is an important convention allowing:
+
+- documentation to be generated in a variety of formats, from plain text to HTML to UNIX man pages
+- makes it read better when tools truncate it for brevity
+
+* How Does godoc Work? (cont'd)
+- comments on package declarations should provide general package documentation, and can be short–like the sort package's brief description:
+
+ // Package sort provides primitives for sorting slices and user-defined
+ // collections.
+ package sort
+
+- comments not adjacent to a top-level declaration are omitted from godoc's output
+- ...except for top-level comments beginning with the word `BUG(who)`, which are included in the Bugs section of the package documentation
+- the `who` part is the user name of someone who could provide more information
+- for e.g., this is a known issue from the bytes package:
+
+ // BUG(r): The rule Title uses for word boundaries does not handle Unicode
+ // punctuation properly.
+
+- let's try it with our stack package...

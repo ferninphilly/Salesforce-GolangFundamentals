@@ -1,0 +1,12 @@
+1. write a function which takes an integer parameter and sums up its digits
+
+- if the resulting sum contains more than 1 digit, the function should sum the digits again, e.g., `sumdigits(1235)` should compute the sum of 1, 2, 3, and 5 (11), then compute the sum of 1 and 1, returning 2
+
+2. write a function to demonstrate the Collatz Conjecture
+
+for integer n > 1
+
+- if n is even, then divide n by 2
+- if n is odd, then set n = n * 3 + 1
+- no matter what number you start with, it will eventually converge to 1
+- (your function should take n and keep printing new value of n until n is 1)

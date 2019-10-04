@@ -1,0 +1,2060 @@
+Golang Fundamentals
+"Go is expressive, concise, clean, and efficient"
+6 Aug 2018
+
+Dave Wade-Stein
+DevelopIntelligence
+dws@developintelligence.com
+http://www.developintelligence.com
+
+* Overview
+
+* Objective
+
+- Who are you?
+- What is your job title?
+- What do you do here?
+- What's your programming background?
+- Who am I?
+
+* History
+- Developed at Google (2009)
+- Robert Griesemer, Rob Pike, Ken Thompson
+- Born out of frustration and shared dislike of C++
+
+* Goals
+
+- efficient compilation
+- efficient execution
+- or ease of programming
+- ...all three were not available in the same language!
+
+Programmers were choosing ease over safety and efficiency by moving to dynamically typed languages (e.g., Python and JavaScript) rather than C++ or, to a lesser extent, Java
+
+* "Did the C++ committee really believe that was wrong with C++ was that it didn't have enough features?" –Rob Pike
+
+* "Clumsy type systems drive people to dynamically typed languages" -Robert Griesemer
+
+* "False dichotomy of static languages being 'slow and painful' and dynamic languages being 'fast and fun'" –Rob Pike
+
+* "Old programs read like quiet conversations between a well-spoken research worker and a well-studied mechanical colleague, not as a debate with a compiler. Who'd have guessed sophistication bought such noise?" -Dick Gabriel
+
+* Philosophy
+
+A new programming language which addressed common criticisms of other languages
+while keeping the good parts:
+
+- static typing
+- scalability to large systems (think Java, C++)
+- networking and multiprocessing
+- not requiring IDEs, but supporting them well
+
+Another goal is...speed!
+
+- should take at most a few seconds to build a large executable
+- and coding itself should be speedy
+
+
+* Philosophy (cont'd)
+
+- Programming = too much bookkeeping, repetition, and clerical work
+
+- The sophistication is worthwhile—no one wants to go back to the old languages—but can it be more quietly achieved?
+
+- Reduce the amount of _typing_ in both senses of the word
+
+- Reduce clutter and complexity
+
+- No forward declarations and no header files–everything is declared exactly once
+
+- Initialization is expressive, automatic, and easy to use 
+
+* Sweet Spots
+
+- Anywhere you need speed and scalability
+
+- Back-end (web) development
+
+- Concurrency
+
+- Systems programming (operating systems, utility software, device drivers, compilers, and linkers)
+
+* Principles
+
+Clean and Simple–Go strives to keep things small and beautiful. You should be able to do a lot in only a few lines of code.
+
+Concurrent–Easy to "fire off" functions to be run as lightweight threads.
+
+Channels–Communication with these goroutines is done, either via shared state or via channels.
+
+Fast–Compilation is fast and execution is fast. The aim is to be as fast as C. Compilation time is measured in seconds.
+
+Safe–Explicit casting and strict rules when converting one type to another. Go has garbage collection. No free()!...the language takes care of it.
+
+Standard format–A Go program can be formatted in (almost) any way the programmers want, but an official format exists. The rule is very simple: The output of the filter gofmt is the officially endorsed format.
+
+* 
+
+Postfix types–The type specification is given after the variable name, thus var a int, instead of int a.
+
+UTF-8–UTF-8 is everywhere, in strings and in the program code. Finally you can use Φ=Φ+1 in your source code.
+
+Open Source–The Go license is completely open source.
+
+Fun–Programming with Go should be fun!
+
+* Let's Get...Up and Running 
+
+* Installation
+
+1. Download from https://golang.org/dl
+
+2. Installer should put `/usr/local/go/bin` in your `$PATH` (you may need to restart any open Terminal sessions for the change to take effect)
+
+3. Create workspace dir `$HOME/go` (or set `$GOPATH` to use a different location)
+
+4. Create the directory `src/hello` inside your workspace
+
+5. Inside that directory create a file `hello.go` containing the following (OK to copy/paste)
+
+.play src/hello.go
+
+- click the `Run` button above and on any slide which has that button
+
+
+* Compiling/Running
+
+1. cd $HOME/go/src/hello
+
+2. go build
+
+- this will create an executable in your directory
+
+3. ./hello
+
+4. go install
+
+- this will install the binary in `$GOPATH/bin` (optional)
+
+- you can also compile and run in one step: go run hello.go
+
+* Compiling/Running/Packaging
+
+Go code (source and compiled) can be found in your GOPATH
+
+- if not set, defaults to ~/go
+
+`src` contains source code
+`bin` contains executables
+`pkg` contains compiled versions of the available libraries so the compiler can link against them without recompiling them
+
+go tool
+
+- go run will compile and run your code
+- go build will produce an executable
+- go install will install it in `$GOPATH/bin`
+
+
+* The Golang Playground 
+
+.link https://play.golang.org/ click here to try it
+
+- web service that runs on golang.org servers
+- receives a Go program
+- compiles, links, and runs the program inside a sandbox
+- returns the output
+- some limits on what we can do there: e.g., no keyboard input, random numbers are deterministic, time is constant (i.e., not current)
+
+* Editors
+
+many editors have Golang plugins
+
+- MacVim
+- Atom
+- Sublime
+- Eclipse
+- ...remember that Golang's philosophy is that IDEs are not required
+
+* Primitive Types
+
+* Golang Basic Types
+
+*bool* true or false
+*string* immutable
+*uint* either 32 or 64 bits
+*int* same size as uint
+*uintptr* an unsigned int large enough to store the uninterpreted bits of a pointer value
+*uint8* the set of all unsigned  8-bit integers (0 to 255)
+*uint16* the set of all unsigned 16-bit integers (0 to 65535)
+*uint32* the set of all unsigned 32-bit integers (0 to 4294967295)
+*uint64* the set of all unsigned 64-bit integers (0 to 18446744073709551615)
+*int8/int16/32/64* the set of all signed 8-/16-/32-/64-bit integers 
+*float32/64* the set of all IEEE-754 32-/64-bit floating-point numbers
+*complex64/128* set of all complex numbers with float32/64 real and imaginary parts
+*byte* alias for uint8
+*rune* alias for int32 (represents a Unicode code point)
+
+* Declaring Variables
+
+The `var` statement is used to declare one or more variables
+
+ var (
+ 	name      string
+ 	age       int
+ 	almaMater string
+ )
+
+or
+
+ var (
+ 	name, almaMater string
+ 	age             int
+ )
+
+or individually:
+
+ var name      string
+ var age       int
+ var almaMater string
+
+* Initializing
+
+all variables initialized to zero unless specified
+
+ var (
+ 	name      string = "Ranveer Singh"
+ 	age       int    = 33
+ 	almaMater string = "Indiana University"
+ )
+
+types are inferred if initializers are present
+
+ var (
+ 	name      = "Ranveer Singh"
+ 	age       =  33
+ 	almaMater = "Indiana University"
+ )
+
+single line initialization
+
+ var (
+ 	name, almaMater, age = "Ranveer Singh", "Indiana University", 33
+ )
+
+* Declaration + Initialization Shorthand
+
+- inside a function, the shorthand `:=` can be used
+
+.play src/ranveer.go /START OMIT/,/END OMIT/
+
+- outside functions, everything begins with a keyword (`var`, `func`, etc.) and the `:=` shorthand is not available
+
+* Constants
+
+- like variables, but declared with the `const` keyword (and of course can't be changed)
+- integer, floating point, string, rune, boolean, and complex numbers
+- can't use := with constants
+- type inferred if not supplied
+- typically written in `MixedCase` or all caps
+
+ const SpeedOfLight = 2.99792458e8 // meters per second
+ const PI = 3.1415926 // already defined in math package
+ const SeparatorChar rune = ':' 
+ const SpaceChar byte = ' ' 
+ const Message string = "1...2...3...Go!"
+ const (
+ 	StatusOK              = 0
+ 	StatusConnectionReset = 1
+ 	StatusOtherError      = 2
+ )
+
+* Constants (cont'd)
+
+- `iota` is a predeclared identifier that represents successive untyped integer constants
+
+.play src/constants.go /START OMIT/,/END OMIT/
+
+* Constants (cont'd)
+
+- `iota` can be used in expressions so you can do things like this
+
+ type ByteSize float64
+   
+ const (
+ 	_           = iota // ignore first value by assigning to blank identifier
+ 	KB ByteSize = 1 << (10 * iota)
+ 	MB
+ 	GB
+ 	TB
+ 	PB
+ 	EB
+ 	ZB
+ 	YB
+ )
+
+- << is the left shift operator
+- 1 << 10 = 0b1000000000 = 2^10 = 1024
+
+* Type Conversion/Casting
+
+- `T(v)` converts the value v to the type T
+
+ var p int = int(PI)
+ var f float64 = float64(p)
+ var u uint = uint(f)
+
+- no automatic type promotion (as is done in C and some other languages)
+
+- *EDIT* *THE* *CODE* to fix the problem after running the below and identifying the problem
+
+.play -edit src/typefunc.go /START OMIT/,/END OMIT/
+
+* Converting to/from Strings
+.link https://golang.org/pkg/strconv strconv package
+
+- most common conversions are `strconv.Atoi()` (ASCII to integer) and `strconv.Itoa()` (vice versa)
+- you may not use this package that often as `fmt`, but it's good to have in your back pocket as there are some super useful functions there
+
+* Outputting
+
+* The fmt Package
+
+as we've seen, `print` and `println` are built in to Golang
+.link https://golang.org/ref/spec#Bootstrapping ...but they may eventually go away
+
+the `fmt` package contains versions that are more flexible (and it's considered more idiomatic to use `fmt`)
+
+believe it or not, it's pronounced `fumpt`
+
+`fmt` also contains:
+
+- `Sprint/Sprintf/Sprintln` functions for printing to strings
+
+later on, we will see:
+
+- `Scan/Scanf/Scanln` functions for reading from the keyboard
+- `Sscan/Sscanf/Sscanln` functions for reading from strings
+- functions for reading/writing from/to files
+
+* fmt.Printf
+
+- formatted print a la C/C++/Java
+- %s = print a string value
+- %d = print an integer value
+
+.play -edit src/printf.go /START OMIT/,/END OMIT/
+
+* fmt.Printf (cont'd)
+- %f = print a float value
+- %v = print the value in a default format
+- %T = print the type of the variable
+- %t = print a Boolean value as true or false
+
+.play -edit src/printf2.go /START OMIT/,/END OMIT/
+
+* Logging
+
+.link https://golang.org/pkg/log/ Golang log package used for debugging
+
+(by the way, we can use the `godoc` tool if we are offline)
+
+- by default, log messages go to stderr
+- can be configured to send log messages to files
+
+_much_ _better_ than fmt, but somewhat lacking as loggers go
+
+- doesn't provide levels (e.g., debug, notice, warning, etc.)
+- doesn't let you configure separate loggers for each package
+- Google gives you glog (https://godoc.org/github.com/golang/glog)
+- also consider loggo (https://godoc.org/github.com/juju/loggo)
+
+* Simple Logging Example
+
+.play src/logging.go
+
+.link https://play.golang.org/p/wte3ZV9oqjV view in playground
+
+* Packages
+
+* What's a Package?
+
+- Go was designed to encourage good software engineering practices
+
+- an important part of high quality software is code reuse
+
+- every Go program is made up of packages, which are file(s) containing functions, variables, constants, etc., but no main
+
+- every Go program file has to be associated with a package via the `package` command at the top
+
+- programs start running in package `main`
+
+ package main
+
+- by convention, the package name is the same as the last element of the import path
+
+- e.g., the `math/rand` package comprises files that begin with the statement
+ package rand
+
+* The main Package
+
+- every Go program is made up of packages
+- as we know, execution begins in package main
+- when building a standalone executable, main must exist 
+- when building a package, there won't be a main 
+
+* Importing Packages
+
+- importing makes packages available in our programs
+- packages can be given a nickname in the event of a name collision (two packages with the same name)
+- you can import a package such that you don't need to use the package name prefix when accessing functions and data inside the package (not recommended)
+
+.play -edit src/package.go
+
+* Packages: Identifiers Beginning with Upper Case Letters are Exported 
+
+- if you want something to be private, start its name with a lower case letter
+- if you want something to be public, start its name with an upper case letter
+
+.code src/example.go
+
+* Exercise: Packages
+
+- create your own package in your `$GOROOT` directory
+- be sure to export at least one function and one constant
+- build and install your package (go install)
+- write a program in different subdirectory which makes use of your package
+
+* Possibly Painful Pedantry?
+- Go complains about unused variables and imports
+- ...and the Go compiler has no warnings
+- you may be annoyed by this, but the Go team explains it well...
+
+“The presence of an unused variable may indicate a bug, while unused imports just slow down compilation, an effect that can become substantial as a program accumulates code and programmers over time. For these reasons, Go refuses to compile programs with unused variables or imports, trading short-term convenience for long-term build speed and program clarity.
+
+The reason for having no warnings. If it’s worth complaining about, it’s worth fixing in the code. And if it’s not worth fixing, it’s not worth mentioning.
+
+Nowadays, most Go programmers use a tool, `goimports`, which automatically rewrites a Go source file to have the correct imports, eliminating the unused imports issue in practice.”
+
+* Functions
+
+* Functions: Declaration, Arguments, Return Values
+
+- a named (maybe) bit of code which is typically reused
+- introduced with `func` keyword
+- accept any number of arguments, return any number of values
+
+.play src/func.go /START OMIT/,/END OMIT/
+
+* main Function
+- as we've seen, the main program must be inside a function called `main`
+- this function takes no arguments and returns nothing...
+
+ package main
+ 
+ func main() { // minimal Golang program
+ }
+
+* Returning Multiple Values
+- Go functions can return multiple values (much like Python)
+- unlike Python, types must of course be specified
+- the blank identifier `_` can be used to discard a value (also like Python)
+
+.play src/multiple.go
+
+* Exercise: Functions
+
+- write a function called `circleinfo` which accepts a float64 radius and returns two values, the area of the circle, and the circumference
+- area = PI * radius * radius
+- circumference = PI * radius * 2 
+- PI is defined in the math package
+
+* More About Return Values
+- you can name the return values
+- ...but I don't recommend it
+- *EDIT* *THE* *CODE* to remove the named return values and be sure it still runs properly
+
+.play -edit src/named.go
+
+* Variadic Functions
+- can be called with any number of arguments
+- e.g., `fmt.Println` is a variadic function you'll likely use regularly
+- in order to use them we need to know a few more concepts, then we'll return to this
+
+* Builtin Functions
+
+- docs in https://golang.org/pkg/builtin but code is not actually in a package
+
+ func append(slice []Type, elems ...Type) []Type
+ func cap(v Type) int {} // capacity of...
+ func close(c chan<- Type) 
+ func complex(r, i FloatType) ComplexType
+ func copy(dst, src []Type) int
+ func delete(m map[Type]Type1, key Type)
+ func imag(c ComplexType) FloatType
+ func len(v Type) int
+ func make(t Type, size ...IntegerType) Type
+ func new(Type) *Type
+ func panic(v interface{})
+ func print(args ...Type)
+ func println(args ...Type)
+ func real(c ComplexType) FloatType
+ func recover() interface{}
+
+* Anonymous Functions
+- functions that live in memory, but have no name
+- they still may be referred to
+- often called lambda functions in other languages
+
+.play src/anonymous.go
+
+* Anonymous Functions (cont'd)
+- functions are first class objects, that is, they can be assigned to variables as well as passed in to other functions
+
+.play src/anonymous2.go
+
+* init Function
+
+- each source file can define its own niladic (zero argument) init function (actually each file can have multiple init functions)
+
+- can be used to set up whatever state is required
+
+- init is called after 1) all imported packages have been initialized; 2) all variable declarations in the package have evaluated their initializers
+
+- a common use of init functions is to verify or repair correctness of the program state before real execution begins
+
+- let's see an example...
+
+* init Function (cont'd)
+
+.play src/init.go
+
+* Calling Functions
+
+- Golang is pass-by-value (like C, which was a starting point of sorts)
+
+- that means if you pass a variable or other object to a function, the function cannot change the variable/object because it receives a copy of it
+
+.play src/passbyvalue.go
+
+* How to Modify Parameters to a Function?
+
+- in order for a function to modify its parameters, the function must accept a _pointer_ to the object it wants to modify
+- a _pointer_ is a variable which contains the memory address of another variable (it is not the same thing as a _reference_
+- there are two operators for dealing with pointers
+- the & operator takes the _address_ of the object that follows it
+- the * operator _dereferences_ a pointer, that is, it gives you access to the object at the address contained in the pointer
+
+* Pointers
+
+.play src/pointer.go
+
+- now let's revisit our earlier attempt to have a function change its parameter, but this time we'll use pointers...
+
+* Pointers (cont'd)
+
+.play -edit src/passbyvalue2.go
+
+- of course we wouldn't use the intermediate variable `ptr_to_val`, it's there for instructive purposes
+
+* Exercise: Pointers and Functions
+
+Write a function `doubler` which takes an integer argument and doubles it
+
+- your function should not return anything, it should modify its argument directly
+- write a main program to test your function
+
+* Functions as Arguments
+
+.play src/funcasarg.go
+
+* User Inputs
+
+* Command-Line Args
+
+- import the `os` package to gain access to the command-line arguments
+- `os.Args` is an array of strings that we can inspect
+- we can't run these in the playground–we need to compile and run locally, then pass command-line args
+
+.code src/clargs.go
+
+* Exercise: Command Line Args
+
+- write a program which takes two command line args representing integers and prints out their sum
+- test it on your machine since it won't run in the playground
+- hint: remember Atoi in the `strconv` package (https://golang.org/pkg/strconv)
+
+* Interactive User Input
+- `fmt` package contains `Scan`, `Scanf`, `Scanln` functions to read from keyboard
+- as with the previous examples, we can't run these examples in the playground, since they require keyboard input
+- let's start with `Scanln`, which reads until a newline is seen
+
+.code src/input.go
+
+* fmt.Scan
+- read from standard input, storing successive space-separated values into successive arguments
+- newlines count as space
+
+.code src/input2.go
+
+* fmt.Scanf
+- reads text from standard input, storing successive space-separated values into successive arguments as determined by the format string
+- newlines in the input must match newlines in the format
+- one exception: the verb %c always scans the next char in the input, even if it is a space (or tab etc.) or newline
+
+.code src/input3.go
+
+* Exercise: strconv
+
+- read in a string from the user
+- convert it to int using `strconv.Atoi()`
+- don't forget to check for errors!
+
+* Control Structures
+
+* if / else
+- no parentheses required
+- braces always required
+- else clause is of course optional
+
+.play -edit src/if.go
+
+* if / else (cont'd)
+- a statement can precede conditionals
+- any variables declared in this statement are available in all branches
+
+.play -edit src/if2.go
+
+* switch Statement
+- express conditionals across many branches
+- no parens
+- multiple expressions allowed
+
+.play -edit src/switch.go
+
+* switch: Multiple Expressions
+
+.play -edit src/switch2.go
+
+* switch: Invoke a Function
+
+.play -edit src/switch3.go
+
+* switch: Condition Omitted
+
+- condition can be omitted altogether, simulating an if
+- ...or think of it as switch true
+
+.play -edit src/switch4.go /START OMIT/,/END OMIT/
+
+* switch: fallthrough
+
+- in C, each branch of a switch statement must be terminated with a `break` statement, or else execution will "fall through" to the next branch once a branch is executed
+- in Go, if you want to fall through, you must explicitly state it
+
+.play -edit src/switch5.go /START OMIT/,/END OMIT
+
+* Exercise: Fizzbuzz
+
+Write a function which accepts an integer and returns
+
+- "fizz" if the number is divisible by 3
+- "buzz" if the number is divisible by 5
+- "fizzbuzz" if the number is divisible by BOTH 3 and 5
+- otherwise it just returns the string version of the number, e.g., "4"
+
+Test your function with these inputs: 3, 5, 15, 4
+
+* for Loop
+
+Go only has one looping construct
+
+basic for loop looks as it does in C/C++/Java, except
+
+- no parens
+
+- braces required
+
+- as in C/C++/Java, you can have empty pre and post statements
+
+.play -edit src/for.go /START OMIT/,/END OMIT
+
+* Exercise: for Loops
+
+implement a square root function using Newton's method:
+
+- starting with some guess for the square root of x, we can adjust it based on how close guess² is to x, producing a better guess:
+
+- guess = guess − (guess² − x) / (2 * guess)
+
+- repeating the above makes the guess better and better
+
+- use a starting guess of 1.0, regardless of the input (it works quite well)
+
+- repeat the calculation 10 times and print each guess along the way
+
+* for Loop: Empty Pre Statement
+
+.play -edit src/for2.go
+
+* for loop as while loop
+
+.play -edit src/for3.go
+
+* Exercise: for Loop as while Loop
+
+- modify your square root function such that the loop terminates once the value has stopped changing (or only changes by a very small amount)
+
+- see how many iterations it takes
+
+- how close are your function's results to `math.Sqrt` in the standard library?
+
+* for loop as Infinite Loop
+
+- as we are no doubt used to from other languages, we can break out of the enclosing loop with the keyword `break` 
+
+.play -edit src/for4.go
+
+* Exercise: for Loop as Infinite Loop
+
+- combine the `strconv` exercise with an infinite loop so your code reads a line of input from the user, expecting it to be an integer 
+- if you can't convert to an integer, print an error message and prompt the user again
+- stop when the user complies
+
+* continue Statement
+
+- skips the current iteration of the loop
+
+- you don't really need continue, since any code written with a continue can be written without one
+- they can be handy in cases where you don't want to execute the loop until you've checked some error conditions
+
+.play -edit src/continue.go
+
+* goto ("Considered Harmful")
+
+.image https://imgs.xkcd.com/comics/goto.png
+
+.link https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf Edsger Dijkstra - Go To Statement Considered Harmful
+
+.link https://www.cs.utexas.edu/users/EWD/ewd02xx/EWD215.PDF A Case against the GO TO Statement
+
+- Go has a goto statement–judicious use of it makes your code easier to understand
+
+- jump to a named label
+
+- must not skip over any variable declarations
+
+- a goto outside a block cannot jump to a label inside that block
+
+* goto Statement: Cleanly Exiting a Function
+- you may allocate resources and need to exit in multiple places
+- putting cleanup code at end of the function with goto simplifies code
+- you don't have to write cleanup code at every "exit point" of function
+
+* goto Statement: Cleanly Exiting a Function (example)
+
+.code src/goto.go
+
+* break with a Label
+
+- useful inside multiple nested loops
+
+.play -edit src/breaklabel.go
+
+* continue with a Label
+
+.play -edit src/continuelabel.go
+
+* defer
+`defer` pushes a function call onto a list, and the saved calls are executed after the surrounding function returns
+
+commonly used to simplify functions with cleanup actions
+
+three rules
+
+- deferred function's arguments are evaluated when the defer statement is evaluated
+
+- deferred function calls are executed in Last In First Out order
+
+- deferred functions may read/assign to the returning function's named return values
+
+.play -edit src/defer.go /START OMIT/,/END OMIT/
+
+* Exercise: defer
+
+- write a program which repeatedly asks to enter a word
+- your program should quit when the user enters "quit"
+- if the length of the word is even, your program should print the word out
+- if the length of the word is odd, your program should defer the printing of the word
+
+* panic
+
+- built-in function that stops the ordinary flow of control and begins "panicking"
+- when function F calls `panic()`, execution of F stops, any deferred functions in F are executed normally, and then F returns to its caller
+- to the caller, F then behaves like a call to `panic()`
+- process continues up the stack until all functions have returned, at which point the program crashes
+- panics can also be caused by runtime errors, such as out-of-bounds array accesses
+- let's see an example of `defer` plus `panic()`...
+
+* panic (cont'd)
+
+.play -edit src/deferpluspanic.go
+
+* recover 
+- built-in function that regains control of a panicking goroutine
+- only useful inside deferred functions
+- during normal execution, a call to `recover()` will return nil and have no other effect
+- if current goroutine is panicking, a call to recover() will capture the value passed to `panic()` and resume normal execution
+- let's add `recover()` to previous example...
+
+* recover (cont'd)
+.play -edit src/deferpluspanicplusrecover.go /START OMIT/,/END OMIT/
+
+* Scope
+
+* Scoping Rules
+- the scope of a predeclared identifier is the universe block, e.g., true, false, nil, iota, types, and built-in functions
+
+- the scope of an identifier denoting a constant, type, variable, or function (but not method) declared at top level (outside any function) is the package block
+
+- the scope of the package name of an imported package is the file block of the file containing the import declaration
+
+- the scope of a function parameter or result variable is the function body
+
+- the scope of a constant or variable declared inside a function begins at the end of the ConstSpec or VarSpec and ends at the end of the innermost containing block
+
+- an identifier declared in a block may be redeclared in an inner block
+while the identifier of the inner declaration is in scope, it denotes the entity declared by the inner declaration
+
+* Scope Example
+
+.play -edit src/scope.go
+
+* Data Structures
+
+* Arrays
+- both type of element and length are part of the type
+- cannot be resized, but not an issue as we'll see shortly
+- zero-valued by default
+
+.play -edit src/array.go /START OMIT/,/END OMIT/
+
+* Arrays (cont'd)
+
+- no need to specify size when initializing
+
+.play -edit src/array2.go /START OMIT/,/END OMIT/
+
+* 2-D Arrays
+
+.play -edit src/array3.go /START OMIT/,/END OMIT/
+
+* Slices
+- key data type in Go
+- a more powerful interface to sequences than arrays
+- slices are typed only by elements they contain (not number of elements)
+- to create an empty slice with non-zero length, use builtin `make` function
+
+.play -edit src/slice.go /START OMIT/,/END OMIT/
+
+* Slices: append() / copy()
+- `append()` returns a new slice containing appended items
+- slices can also be `copy()`-ed
+
+.play -edit src/slice2.go /START OMIT/,/END OMIT/
+
+* Slicing Slices
+
+- slices (and arrays) support a slicing operator (much like Python)
+
+.play -edit src/slice3.go /START OMIT/,/END OMIT/
+
+* Slices vs. Arrays
+- an array type definition specifies both length and element type
+- for e.g., [4]int is an array of 4 ints
+
+.image images/go-array.png
+
+- a slice, on the other hand, is a descriptor of a segment of an array
+- a slice consists of a pointer to the array, the length of the segment, and its capacity
+
+.image images/go-slice.png
+.link https://blog.golang.org/go-slices-usage-and-internals
+
+* Slices vs. Arrays (cont'd)
+
+- consider the following slice
+
+ s := make([]byte, 5)
+
+- under the hood it looks like this
+
+.image images/go-slice-byte-5.png
+
+- what if we slice that slice?
+
+.link https://blog.golang.org/go-slices-usage-and-internals
+
+* Slices vs. Arrays (cont'd)
+
+ s = s[2:4]
+
+.image images/go-slices-byte-2-4.png
+
+ s = s[:cap(s)]
+
+.image images/go-slices-cap.png
+
+* nil Slice
+
+- an empty slice is the same as nil, the Go equivalent of NULL in other languages
+
+.play -edit src/slice4.go /START OMIT/,/END OMIT/
+
+* Exercise: Slices
+
+1. write a function `minmaxavg` which accepts a float64 slice and returns three values, the minimum value in the slice, the maximum value in the slice, and the average of all the values
+2. write a function `fib` that returns a slice containing the first n Fibonacci numbers
+
+- the Fibonacci sequence is 1, 1, 2, 3, 5, 8...
+- each number is the sum of the previous Fibonacci numbers
+- so `fib(6)` should return an int slice of size 6 containing 1, 1, 2, 3, 5, 8
+
+* Maps
+
+- Go’s built-in associative datatype (like Python dictionaries)
+- key/value pairs
+- unlike Python, a missing key does not cause an error
+
+.play -edit src/map.go /START OMIT/,/END OMIT/
+
+* Maps (cont'd)
+- we can also create an empty map and add to it later
+- `len()` returns size of map (number of key/value pairs)
+- `delete()` deletes items from a map
+
+.play -edit src/map2.go /START OMIT/,/END OMIT/
+
+* range
+- range iterates over elements in a variety of data structures
+
+.play -edit src/range.go /START OMIT/,/END OMIT/
+
+- if we don't need the index...
+
+.play -edit src/range2.go /START OMIT/,/END OMIT/
+
+* range on a Map
+
+- ...iterates over key/value pairs
+
+.play -edit src/range3.go /START OMIT/,/END OMIT/
+
+* range on a Map (cont'd)
+
+- ...or just over the keys
+
+.play -edit src/range4.go /START OMIT/,/END OMIT/
+
+* range on a string...
+- ...iterates over Unicode code points
+- the first value is the starting byte index of the rune
+- the second value is the rune itself
+
+.play -edit src/range5.go /START OMIT/,/END OMIT/
+
+* Exercise: Maps
+- use a map to translate Roman numerals into their Arabic equivalents
+- load the map with Roman numerals M (1000), D (500), C (100), L (50), X (10), V (5), I (1)
+- read in a Roman numeral
+- print Arabic equivalent
+- try it with MCLX = 1000 + 100 + 50 + 10 = 1160
+- EXTRA: if you have time, deal with the case where a smaller number precedes a larger number, e.g., XC = 100 - 10 = 90, or MCM = 1000 + (1000-100) = 1900
+
+* Additional Exercise: Maps
+- create four calculator functions: add, sub, mul, div
+- each function should take 2 integers and return an integer result
+- create a map which maps the strings representing the operators to the _functions_ 
+- that is, "+" would be mapped to `add()`, "-" would be mapped to `sub()`...
+- have your program read in lines like "2 + 4" and have it determine the result by parsing the line and then using the operator ("+" in this case) to find the appropriate function to invoke
+
+* sort Package
+- methods are specific to builtin type
+- sorting occurs in place
+
+.play -edit src/sort.go /START OMIT/,/END OMIT/
+
+* User-Defined Types
+
+* struct
+- typed collections of fields
+- useful for grouping data together (like structs in other languages)
+
+.play -edit src/struct.go /START OMIT/,/END OMIT/
+
+* struct (cont'd)
+- you can name the fields when initializing a struct
+- you can leave out fields, which will be set to zero
+- & operator yields a pointer to the struct
+- use a dot to access the fields
+
+.play -edit src/struct2.go /START OMIT/,/END OMIT/
+
+* Anonymous struct
+- why an anonymous struct?
+- e.g., grouped globals
+
+ var config struct {
+ 	APIKey string
+ 	IPAddr string
+ }
+ config.APIKey = "BADC0C0A"
+ config.IPAddr = "1.1.1.1"
+
+- test tables
+
+ var indexRuneTests = []struct {
+ 	s    string
+ 	rune rune
+ 	out  int
+ }{
+ 	{"a A x", 'A', 2},
+ 	{"some_text=some_value", '=', 9},
+ 	{"☺a", 'a', 3},
+ 	{"a☻☺b", '☺', 4},
+ }
+
+* Methods
+- Go is not object oriented...or is it?
+- Go does not have classes, but we can define methods on struct types
+- types and methods allow for an OO style of progamming
+- Go does not support inheritance, but later we'll see the use of composition and interfaces
+- suppose we define a type called triangle
+
+ type triangle struct {
+ 	side1, side2, side3 int
+ }
+
+- ...and we'd like to be able to perform certain operations on objects of type `triangle`
+
+* Methods (cont'd)
+
+- here a method to compute the area of a triangle via Heron's formula...
+
+.code src/method1.go
+
+- notice that the function (or method) above has a different syntax
+- the above is a _method_, and the _method_ _receiver_ (the type that the method acts upon) appears in its own argument list between the `func` keyword and the method name
+
+- here's another one...
+
+.code src/method2.go
+
+* Methods (cont'd)
+
+- to call a method on an object, we use a dotted notation common to object-oriented languages: _object.method(...)_
+
+.play -edit src/method.go /START OMIT/,/END OMIT/
+
+* Methods (cont'd)
+
+- if we want to be able to modify the struct, our method will have to accept a pointer receiver
+
+.code src/method3.go
+
+- we generally want all of our methods to either accept a pointer or a type, so the consumer of our code is not confused (when to pass a pointer vs. when to pass a value), so we'd rewrite like so...
+
+* Methods (cont'd)
+
+.play -edit src/method4.go /START OMIT/,/END OMIT/
+
+* Defining Methods on Other Types
+- you can define methods on any type in your package (not just structs)
+- you can't define a method on a type from another package
+- you can't define a method on a basic type, but you can create your own type via Go's type extensibility
+
+.play -edit src/stringmethod.go /START OMIT/,/END OMIT/
+
+*EDIT* *THE* *CODE* so that the Uppercase method takes a parameter _suffix_, which is appended to the end of the string
+
+* Embedding
+- including a type as a nameless parameter within another type
+- this makes the exported parameters and methods of the embedded type accessible through the embedding type
+- compiler does this via promotion–the exported properties and methods of the embedded type are promoted to the embedding type
+- suppose in addition to our `mountain` type, we also want to represent a `climb`, in which a climber climbs a particular mountain...
+
+* Embedding (cont'd)
+
+ type Mountain struct {
+ 	Name      string
+ 	Elevation int
+ }
+
+ type Climb struct {
+ 	Name      string // these two fields are duplicated
+ 	Elevation int    // ...
+ 	Climber   string
+ }
+
+- the duplicate field names are a bit unsettling, but we can simplify things by embedding (or composing) a mountain inside climb
+
+ type Climb struct {
+ 	Mountain
+ 	Climber   string
+ }
+
+- the fields in `Mountain` are promoted to be part of `Climb`
+
+* Embedding (cont'd)
+
+- we can initialize a Climb in two ways, the first of which demonstrates the promotion of the fields from the embedded Mountain:
+
+.play -edit src/embed.go /START OMIT/,/END OMIT/
+
+- in addition to promotion of the fields, the methods of the embedded structs are also promoted...
+
+* Embedding (cont'd)
+
+- let's make a silly method for Mountains called _HowBig()_
+
+.play -edit src/method5.go /START OMIT/,/END OMIT/
+
+* Embedding (cont'd)
+
+- now we'll demonstrate the object of type Climb can invoke the _HowBig()_ method
+
+.play -edit src/method6.go /START OMIT/,/END OMIT/
+
+* Encapsulation
+- hiding implementation details when an interface to user-defined types is provided
+- as a simple example, let's consider a singleton object (i.e., only one copy of the object exists at any given time)
+
+.code src/thing.go
+
+* Encapsulation (cont'd)
+
+- via encapsulation, we can manipulate the singleton object, but can't see its implementation
+- the package writer could change the implementation and as long as the same API was exposed, everything would still work
+.play -edit src/encapsulation.go
+ 
+- the above works for me because I've built and installed the `thing` package and I'm running on my machine–it won't work for you
+
+* Interfaces
+- an interface is a type, defined by a set of methods
+- or, an interface is a named collections of method signatures
+- to implement an interface, we implement all methods in the interface
+- we don't need to tell the compiler we are implementing an interface–the compiler figures that out automatically
+
+.play src/interface.go /START OMIT/,/END OMIT/
+
+* Interfaces (cont'd)
+
+ type geometry interface {
+ 	area() float64
+ 	perim() float64
+ }
+
+here we implement geometry on rectangles:
+
+ type rect struct {
+ 	width, height float64
+ }
+
+ func (r rect) area() float64 {
+ 	return r.width * r.height
+ }
+
+ func (r rect) perim() float64 {
+ 	return 2*r.width + 2*r.height
+ }
+
+* Interfaces (cont'd)
+
+here we implement geometry on circles:
+
+ type circle struct {
+ 	radius float64
+ }
+ 
+ func (c circle) area() float64 {
+ 	return math.Pi * c.radius * c.radius
+ }
+ 
+ func (c circle) perim() float64 {
+ 	return 2 * math.Pi * c.radius
+ }
+
+if a variable has an interface type, we can call methods in the interface
+
+here's a generic measure function which works on any geometry
+
+ func measure(g geometry) {
+ 	fmt.Println(g, g.area(), g.perim())
+ }
+
+* Interfaces (cont'd)
+
+.play -edit src/measure.go /START OMIT/,/END OMIT/
+
+* Interface Values
+- under the hood, interface values can be thought of as a tuple of a value and a concrete type: (value, type)
+- an interface value holds a value of a specific underlying concrete type
+- calling a method on an interface value executes the method of the same name on its underlying type
+
+ type Text struct {
+ 	String string
+ }
+
+ func (t Text) Method() {
+ 	fmt.Println(t.String)
+ }
+
+ type MyFloat float64
+
+ func (f MyFloat) Method() {
+ 	fmt.Println(f)
+ }
+
+* Interface Values (cont'd)
+.play -edit src/interfaceval.go /START OMIT/,/END OMIT/
+
+* Interface Values with nil Underlying Value
+- if the value inside the interface is nil, the method will be called with a nil receiver
+- in some languages this would yield a null pointer exception–it's common in Go to write methods that handle being called with a nil receiver
+
+.code src/interfacevalnil.go /START OMIT/,/END OMIT/
+
+* Interface Values (cont'd)
+.play -edit src/interfacevalnil.go /START2 OMIT/,/END2 OMIT/
+
+* nil Interface Value
+
+- a nil interface value holds neither value nor type
+- calling a method on a nil interface is a run-time error
+
+.play -edit src/nilinterface.go /START OMIT/,/END OMIT/
+
+# .play src/variadic.go /START OMIT/,/END OMIT/
+
+* The Empty Interface
+- the interface type that specifies zero methods is known as the empty interface: `interface{}`
+- an empty interface may hold values of any type, since every type implements at least zero methods
+- use case–code that handles values of unknown type (e.g., `fmt.Print` takes any number of arguments of type `interface{}`)
+
+.play -edit src/empty.go /START OMIT/,/END OMIT/
+
+* Type Assertions
+- a type assertion provides access to an interface value's underlying concrete value
+
+ t := i.(T)
+
+- the above statement asserts that the interface value i holds the concrete type T and assigns the underlying T value to the variable t
+- if i does not hold a T, the statement will trigger a panic
+- to test whether an interface value holds a specific type, a type assertion can return two values–the underlying value and a boolean that reports whether the assertion succeeded
+
+ t, ok := i.(T)
+
+- if i holds a T, then t will be the underlying value and ok will be true
+- otherwise, ok will be false and t will be the zero value of type T, and no panic occurs
+- NOTE: this syntax is similar to that of reading from a map
+
+* Type Assertions (cont'd)
+
+.play -edit src/type.go
+
+* Type switch
+- a switch construct that permits several type assertions in series
+- like a regular switch statement, but the cases in a type switch specify types (not values), and those values are compared against the type of the value held by the given interface value
+
+.play -edit src/typeswitch.go /START OMIT/,/END OMIT/
+
+* Stringers
+
+- one of the most ubiquitous interfaces is Stringer
+
+ type Stringer interface {
+ 	String() string
+ }
+
+- a type that can describe itself as a string
+- the `fmt` package (and many others) look for this interface to print values
+
+.play -edit src/stringer.go /START OMIT/,/END OMIT/
+
+* Exercise: Stringers
+
+Given the following type:
+
+ type IPAddr [4]byte
+
+1. Define a map which maps hostnames (string) to `IPAddr`
+2. Add a few hostnames to your map, e.g., "localhost.com" (the addresses don't have to be correct)
+3. Add a `Stringer` method to `IPAddr` so that it is printed out in dotted notation (e.g., "127.0.0.1")
+4. Test your code in the playground or locally
+
+* Error Handling
+
+* Error Handling
+- Go does not have exceptions, as we're used to in Python, Java, etc.
+- it’s idiomatic to communicate errors via an separate return value
+- the ability to return multiple values is an improvement over C, where programmers often overload a single result value to indicate error
+- error detection and handling in Go is easy since we can use the same language constructs we're used to
+- by convention, errors are the last return value and are of type `error`:
+
+ type error interface {
+ 	Error() string
+ }
+
+- ...in other words, any type that has an `Error()` method that returns a string
+- let's see an example using Go's built-in errors...
+
+* Error Handling (cont'd)
+- `errors.New()` returns a basic error
+- pre-defining errors can be cleaner
+- an error of `nil` means no error (`nil` is like NULL in other languages)
+
+.code src/error.go /START OMIT/,/END OMIT/
+
+* Error Handling (cont'd)
+
+.play -edit src/error.go /START OMIT/,/END2 OMIT/
+
+* Error Handling (cont'd)
+- we can create our own error type, perhaps adding a timestamp, as long as we implement the error interface
+
+.play -edit src/error2.go /START OMIT/,/END OMIT/
+
+* Error Handling (cont'd)
+- if you need to access the data in a custom error, you need to use type assertion in order to get the error as an instance of your custom error:
+
+.play -edit src/error3.go /START OMIT/,/END OMIT/
+
+* Lab: Error Handling
+- modify your square root function from earlier to return a custom error as well as the square root
+- test it with a main program that sends a valid argument as well as an invalid argument
+- access the fields of the custom error programmatically using type assertion
+
+* Error Handling: Best Practices
+always check for errors, not just when you expect them
+
+whenever possible, error strings should identify their origin, e.g., a prefix naming the operation or package that generated the error
+
+- e.g., "<package_name>: unknown format"
+
+pre-define errors when possible
+
+know when to panic:
+
+- when the user explicity says so
+- during initialization (maybe, if can't recover)
+
+* Reading/Writing Files
+
+* Reading Files
+- the interfaces `io.Reader` and `io.Writer` are central to input/output in Go
+ 
+ type Reader interface {
+         Read(p []byte) (n int, err error)
+ }
+ 
+ type Writer interface {
+         Write(p []byte) (n int, err error)
+ }
+
+* Reading Files
+# (cont'd)
+- here's an example using the `os` package to read from `/etc/passwd`
+
+.play -edit src/read.go /START OMIT/,/END OMIT/
+
+* Writing Files
+
+.play -edit src/write.go /START OMIT/,/END OMIT/
+
+* More Reading Files
+
+.code src/read2.go /START OMIT/,/END OMIT/
+
+* More Reading Files (cont'd)
+
+.play -edit src/read2.go /START2 OMIT/,/END2 OMIT/
+
+* Reading a Text File Line by Line
+- easiest to use a `Scanner` in the `bufio` package
+- substitute `os.Stdin` to read from standard input
+
+.play -edit src/scan.go /START OMIT/,/END OMIT/
+
+* Exercise: Reading from Files
+- write a Go program to read a file and count the number of occurrences of each word in the file
+- use a `map` indexed by word, to count the occurrences
+- treat *The* and *the* as the same word when counting
+- print out words and counts, from most common to least common
+- EXTRA: remove punctuation, so *Hamlet,* == *Hamlet*
+- NOTE: the `strings` package has several functions that will be helpful
+.link http://bit.ly/BillShak Test on Shakespeare's Hamlet
+
+* Concurrency
+
+* What is Concurrency?
+
+- Hint: it's not parallelism
+- concurrency = the composition of independently executing things (e.g., functions)
+- parallelism = simultaneous execution of multiple things (which may or may not be related)
+- concurrency is about dealing with many things at once (i.e., it's about structure)
+- parallelism is about doing many things at once (i.e., it's about execution)
+- consider an OS which manages a number of I/O devices: mouse, keyboard, video, etc.
+- it's concurrent, but if only one CPU, clearly not parallel
+
+* Go Scheduler Overview
+- a goroutine (G) is like a lightweight thread which we will examine shortly
+- in order for an M (operating system thread) to execute a G it must acquire a (logical) processor (P), also known as a context 
+
+.image images/scheduler-objects.jpg
+.link http://morsmachine.dk/go-scheduler
+
+* Go Scheduler Overview (cont'd)
+M will run G until it stops:
+
+.image images/go-in-motion.jpg
+
+- making a system call (e.g., I/O)
+- blocking on a channel operation (discussed shortly)
+- pre-empted (which only happens at a safe point–when it makes a function call)
+
+* Go Scheduler Overview (cont'd)
+.image images/syscall.jpg
+if G blocks on a system call, it releases the P but remains running on the M
+
+- a system monitor thread wakes up every so often
+- if it sees runnable G and available P it will wake a sleeping M (or start a new one)–that M will acquire a P and run a runnable G
+
+when a G completes a system call it will either reacquire the P or be marked runnable and go to sleep
+
+* Go Scheduler Overview (cont'd)
+if G block on a channel operation, it gets placed in a queue
+
+- M looks for another runnable G
+- if no runnable G, M will release P and go to sleep
+
+when a channel operation succeeds, it will wake the other goroutine, mark it runnable, and, if there is an available P wake up a M to run it
+
+.image images/queuex.png
+
+* Concurrency: Go vs. Others
+concurrent programming is often difficult due to the subtleties required to correctly access shared data
+
+Go takes a different approach–shared data are passed back and forth on channels
+
+- they are not, in fact, actively shared by separate threads
+- only one goroutine has access to the data at any given time
+- data races cannot occur, by design
+
+to encourage this way of thinking Golang has reduced it to a slogan:
+
+* Do not communicate by sharing memory; instead, share memory by communicating!
+
+* Concurrency: Go vs. Others (cont'd)
+
+- of course, his approach can be taken too far...
+
+- e.g., reference counts may be best implemented by putting a mutex (defined later) around an integer
+
+Go includes low-level concurrency primitives as well, but you often need not concern yourself with low-level details
+
+* Goroutines
+- a lightweight thread of execution (not an actual OS thread)
+- invoked by keyword go preceding a function call (or anonymous function)k
+
+.play -edit src/goroutine.go
+
+* Gouroutines (cont'd)
+- another example...run directly, not in playground
+.code src/goroutine2.go
+
+* Channels
+- typed "conduits" through which you can send and receive data using the channel operator `<-`
+- data moves in the direction of the arrow
+- create a new channel using built-in function `make()`
+- sending and receiving are blocking operations
+
+.play -edit src/channel.go /START OMIT/,/END OMIT/
+
+* Exercise: Relay Race
+- write a program to simulate a relay race with 4 runners
+- create a func called `runner` with an int channel as a parameter
+- the function should receive the "baton" via that channel (in reality it will receive a runner number, from 1-4)
+- once the baton is received, it will print a message saying "Runner x is running" and then it will fire off the next goroutine representing the next runner in line
+- when runner 4 receives the baton, it is the last runner, so it should not fire off another goroutine
+
+* Buffered Channels
+- channels are unbuffered by default, i.e., they only accept a send operation if there is a corresponding receive operation ready to receive the data
+- buffered channels receive and hold send ops without a corresponding receiver
+
+.play -edit src/channel2.go /START OMIT/,/END OMIT/
+
+* Buffered Channels (cont'd)
+- but if you try to put too much in the buffered channel...
+
+.play -edit src/channel3.go
+
+* Buffered Channels (cont'd)
+- but if we use a goroutine, it will work...
+
+.play -edit src/channel4.go
+
+* Channel Synchonization
+- channels can be used to synchronize execution across goroutines
+- we will use a blocking receive to wait for our goroutine to finish
+- (here's a case where the parameter name is the same as the variable name, on purpose)
+
+.play -edit src/channel5.go /START OMIT/,/END OMIT/
+
+* Channel Directions
+- when using a channel as a parameter to a function, you can specify whether the channel is meant to send or receive
+
+.play -edit src/channel6.go /START OMIT/,/END OMIT/
+
+* The select Statement
+- lets a goroutine wait on multiple communication operations
+- blocks until one of its cases can run, then it executes that case
+- if more than one are ready it chooses one at random
+
+.play -edit src/select.go /START OMIT/,/END OMIT/
+
+* Timeouts
+we need to be able to time out if
+
+- we're connecting to external resources
+- we need to bound execution time
+- channels plus the `select` statement let us time out elegantly
+
+.play -edit src/select2.go /START OMIT/,/END OMIT/
+
+* Non-Blocking Channel Operations
+- sends and receives on channels are blocking
+- ...but, we use `select` with a `default` to implement non-blocking sends and receives
+
+.play -edit src/select3.go /START OMIT/,/END OMIT/
+
+* Non-Blocking Channel Operations (cont'd)
+- here is a non-blocking multi-way `select`
+
+.play -edit src/select4.go 
+
+* Closing Channels
+
+.play -edit src/closechannel.go /START OMIT/,/END OMIT/
+
+* Range on a Channel
+- receive values repeatedly from a channel until it is closed
+- we can close a channel with data still in it, and have the data received afterwards
+
+.play -edit src/rangeonchannel.go /START OMIT/,/END OMIT/
+
+* Exercise: Select/Concurrency
+- modify the previous Fibonacci example to use an unbuffered channel, rather than a buffered channel
+- add a second unbuffered channel called `quit`, which is used by the fibonacci routine to know there is no more work to (in other words, fibonacci should listen for a message on the `quit` channel, and if it receives the message, it should stop generating Fibonacci numbers)
+- the above means that the fibonacci function will no longer have a loop from 1 to 10
+
+* Signal Handling
+- sometimes we’d like our programs to intelligently handle Linux signals
+- e.g., want a server to gracefully shut down when it receives a SIGTERM
+- doesn't work in playground, run directly!
+
+.play -edit src/signal.go
+
+* Waiting for Goroutines
+- a `sync.WaitGroup` waits for a collection of goroutines to finish
+
+.play -edit src/waitingforgo.go /START OMIT/,/END OMIT/
+
+* Exercise: Waiting for Goroutines
+- create 25 goroutines, each of which sleeps a random number of seconds before completing
+- after sleeping, the go routine should print a message like _Goroutine_ _n_ _done_ where n is the number of the goroutine
+- when all 25 are done, the main program should notify you that all goroutines have finished
+
+* More Interesting Example
+- go get a bunch of URLs
+- spin up a goroutine for each one
+
+.play -edit src/waitingforgo2.go /START OMIT/,/END OMIT/
+
+* Mutual Exclusion (sync.Mutex)
+- what if we just want to make sure only one goroutine can access a variable at a time to avoid conflicts?
+- this concept is called mutual exclusion and the data structure that provides it is typically called a mutex
+- Go provides `sync.Mutex` and its two methods, `Lock` and `Unlock`
+- if a `sync.Mutex` object is already locked when a goroutine tried to lock it, the goroutine will block until the holder of the lock unlocks it
+
+ import "sync"
+ var state = make(map[int]int) // For our example the `state` will be a map
+ var mutex = &sync.Mutex{}     // This `mutex` will synchronize access to `state`
+ var readOps uint64            // We'll keep track of how many read...
+ var writeOps uint64           // ...and write operations we do
+
+* Mutual Exclusion (cont'd)
+
+.code src/mutex.go
+
+* Mutual Exclusion (cont'd)
+
+.play -edit src/mutex2.go /START OMIT/,/END OMIT/
+
+* Race Detection
+a data race occurs when two goroutines access the same variable concurrently and at least one of the accesses is a write
+
+among the most common/most difficult to debug issues in concurrent systems
+
+- go run -race mysrc.go
+- go build -race mycmd
+- go install -race mypkg
+- go test -race mypkg
+
+* JSON
+
+* JSON
+- Go offers built-in support for JSON encoding and decoding
+- An example with basic types...
+
+.play -edit src/json.go /START OMIT/,/END OMIT/
+
+* JSON (cont'd)
+- an example with slices and maps...
+
+.play -edit src/json2.go /START OMIT/,/END OMIT/
+
+* JSON (cont'd)
+
+- encoding and decoding of custom types
+
+.play -edit src/json3.go /START OMIT/,/END OMIT/
+
+* JSON (cont'd)
+- previous examples used bytes and strings as intermediates between the data and JSON representation on standard out
+- we can also stream JSON encodings directly to os.Writers like os.Stdout or even HTTP response bodies
+
+.play -edit src/json4.go 
+
+* Testing
+
+* Testing
+- Go comes with great unit testing capabilities built in
+- let's build a small package and see how to test it
+
+.code src/stack.go
+
+* Testing (cont'd)
+- we will create a test in the same folder as our code
+- our test file(s) should be named *_test.go
+- first we have to import the testing package (https://golang.org/pkg/testing)
+- then we create one or more functions named Test* which take a pointer to a testing.T type (this type manages state for the test, etc.)
+
+.code src/testpushpop.go
+
+* Testing (cont'd)
+
+ $ go test -v
+ === RUN   TestPushPop
+ --- PASS: TestPushPop (0.00s)
+ PASS
+ ok      stack    0.006s
+
+* Exercise: Testing
+add additional methods to the Stack module:
+- `Top`: returns the top element but does not remove it
+- `IsEmpty`: return a Boolean indicating whether stack is empty
+- `Size`: returns number of elements on stack (could be used by IsEmpty)
+- add tests for each of these methods
+
+* "Example" Tests
+- like unit tests, but instead of verifying the results of tests programmatically, it verifies the output of the test
+- the correct output lives in comments after the commands
+
+ func ExampleSalutations() {
+     fmt.Println("hello, and")
+     fmt.Println("goodbye")
+     // Output:
+     // hello, and
+    // goodbye
+ $ go test -v
+ }
+
+- output from running the examples
+ === RUN   ExampleSalutations
+ --- PASS: ExampleSalutations (0.00s)
+ PASS
+ ok      example    0.005s
+
+* "Example" Tests (cont'd)
+- the comment prefix "Unordered output:" matches any line order:
+
+ func ExamplePerm() {
+     for _, value := range Perm(4) {
+         fmt.Println(value)
+     }
+     // Unordered output: 4
+     // 2
+     // 1
+     // 3
+     // 0
+ }
+
+* Exercise: Example Tests
+- write a Golang program that takes a string message such as "Hello from Hyderabad", splits it into words, and then enters the words as keys in a map (the values are up to you)
+- iterate through the map and output the keys, which will be in a random order
+- write an "example" test to ensure the output is correct
+
+* Test Coverage
+- test coverage refers to the percentage of statements in your code that are executed by your tests
+- ideally, we want 100% coverage ("untested code is broken code")
+
+ package size
+ 
+ func Size(a int) string {
+     switch {
+     case a < 0:
+         return "negative"
+     case a == 0:
+         return "zero"
+     case a < 10:
+         return "small"
+     case a < 100:
+         return "big"
+     case a < 1000:
+         return "huge"
+     }
+     return "enormous"
+ }
+
+* Test Coverage (cont'd)
+- here's a test-let's see how it does
+
+ type Test struct { // a "Test" consists of an input and an output
+     in  int
+     out string
+ }
+ var tests = []Test{ // Clearly are missing some cases here
+     {-1, "negative"},
+     {5, "small"},
+ }
+ func TestSize(t *testing.T) {
+     for i, test := range tests {
+         size := Size(test.in)
+         if size != test.out {
+             t.Errorf("#%d: Size(%d)=%s; want %s", i, test.in, size, test.out)
+         }
+     }
+ }
+
+* Test Coverage (cont'd)
+ $ go test
+ PASS
+ ok      size    0.08s
+
+- the tests pass, but let's look at coverage
+
+ $ go test -cover
+ PASS
+ coverage: 42.9% of statements
+ ok      size    0.008s
+
+- coverage is quite poor–it's fairly obvious why in this toy example
+
+* Test Coverage (cont'd)
+- go test runs the cover tool which rewrites the source code like this
+
+ func Size(a int) string {
+     GoCover.Count[0] = 1
+     switch {
+     case a < 0:
+         GoCover.Count[2] = 1 // each assignment statement is a single move instruction,
+         return "negative"    // therefore FAST
+     case a == 0:
+         GoCover.Count[3] = 1
+         return "zero"
+     case a < 10:
+         GoCover.Count[4] = 1
+         return "small"
+     case a < 100:
+         GoCover.Count[5] = 1
+         return "big"
+     case a < 1000:
+         GoCover.Count[6] = 1
+         return "huge"
+     }
+     GoCover.Count[1] = 1    // 7 paths through the code, and only 3 of them were executed
+     return "enormous"
+ }
+
+* Coverage Profile
+ $ go test -coverprofile=coverage.out
+ PASS
+ coverage: 42.9% of statements
+ ok      size    0.08s
+
+- we can examine coverage per function (but not very interesting here since there's only one function)
+
+ $ go tool cover -func=coverage.out
+ size/size.go:3: Size            42.9%
+ total:          (statements)    42.9%
+
+- let's see it graphically...
+
+ $ go tool cover -html=coverage.out
+
+* Coverage Profile (cont'd)
+
+.image images/coverage.png
+
+* Sub-Tests
+- we can use the t.Run() method to group tests together, in order to share setup and teardown and create hierarchical tests
+
+ func TestSize(t *testing.T) {
+     t.Log("Setup!") // common setup code can go here
+     t.Run("neg", func(t *testing.T) {
+         if Size(-1) != "negative" {
+             t.Error("-1 not negative")
+         }
+     })
+     t.Run("big", func(t *testing.T) {
+         if Size(9) != "big" {
+             t.Error("9 not big")
+         }
+     })
+     t.Log("Teardown!") // common teardown code can go here
+ }
+
+- each subtest has a unique name–the name of the top-level test plus the sequence of names passed to t.Run(), separated by slashes, with an optional trailing sequence number for disambiguation
+
+* Sub-Tests (cont'd)
+- we can specify which test should run using command-line args
+
+ go test -run ''       # Run all tests (same as __`go test`__)
+ go test -run Size     # Run top-level tests matching "Size", such as "TestSize"
+ go test -run Size/ne  # For top-level tests matching "Size", run subtests matching "ne"
+ go test -run /ne      # For all top-level tests, run subtests matching "ne"
+
+* Testing Best Practices
+
+put tests in a different package
+
+- if they're in the same package they have access to the package internals
+- in a different package you are limited to the exposed API
+
+put internal tests in a different file, e.g., foo_internal_test.go
+
+- good for TDD
+use test tables
+aim for 100% coverage
+
+- but only if your tests are actually testing what they should be
+
+* Benchmarking
+
+* Benchmarks
+- examine the performance of your Go code
+- part of the `testing` package
+- placed inside `*_test.go` files, prefaced with `Benchmark` as opposed to Test
+- benchmark functions take a single argument, a pointer to a testing.B
+- executed with go test -bench <regexp>
+- use . to run all benchmarks
+- benchmarks are run several times by the testing package
+- the value of b.N will increase each time until the benchmark runner is satisfied with the stability of the benchmark
+
+* Benchmarks (cont'd)
+
+ func Fib(n int) int {
+         if n < 2 {
+                 return n
+         }
+         return Fib(n - 1) + Fib(n - 2)
+ }
+
+ func BenchmarkFib10(b *testing.B) {
+         // run the Fib function b.N times
+         for n := 0; n < b.N; n++ {
+                 Fib(10)
+         }
+ }
+
+ 
+ 
+ 
+ 
+  
+ .
+
+.link https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go How to Write Benchmarks in Go
+
+* Benchmarks (cont'd)
+ $ go test -bench=.
+ goos: darwin
+ goarch: amd64
+ pkg: fib
+ BenchmarkFib10-4        5000000           359 ns/op
+ PASS
+ ok      fib    2.184s
+
+- PASS output is from running tests
+- use -run <regexp> if you want to avoid running tests
+- second line is number of times test was run (i.e., b.N), followed by average execution time for the test
+
+.link https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go How to Write Benchmarks in Go
+
+* Benchmarking Various Inputs
+- given that the Fib function is the classic recursive implementation, we’d expect it to slow down exponentially for large values of n
+- we can rewrite our benchmark slightly using a common pattern
+
+ func benchmarkFib(i int, b *testing.B) {
+        for n := 0; n < b.N; n++ {
+                 Fib(i)
+         }
+ }
+
+ func BenchmarkFib1(b *testing.B)  { benchmarkFib(1, b) }
+ func BenchmarkFib2(b *testing.B)  { benchmarkFib(2, b) }
+ func BenchmarkFib3(b *testing.B)  { benchmarkFib(3, b) }
+ func BenchmarkFib10(b *testing.B) { benchmarkFib(10, b) }
+ func BenchmarkFib20(b *testing.B) { benchmarkFib(20, b) }
+ func BenchmarkFib40(b *testing.B) { benchmarkFib(40, b) }
+
+- note that `benchmarkFib` has to be private to prevent the testing driver from trying to run it directly
+
+.link https://dave.cheney.net/2013/06/30/how-to-write-benchmarks-in-go How to Write Benchmarks in Go
+
+* Benchmarking Various Inputs (cont'd)
+ $ go test -bench=.
+ goos: darwin
+ goarch: amd64
+ pkg: fib
+ BenchmarkFib1-4        1000000000             2.59 ns/op
+ BenchmarkFib2-4        200000000             7.07 ns/op
+ BenchmarkFib3-4        100000000            12.0 ns/op
+ BenchmarkFib10-4        3000000           433 ns/op
+ BenchmarkFib20-4          30000         52993 ns/op
+ BenchmarkFib40-4              2     779718761 ns/op
+ PASS
+ ok      fib    12.440s
+
+- each benchmark runs for a minimum of 1 second by default
+- if the second has not elapsed when the Benchmark function returns, the value of b.N is increased in the sequence 1, 2, 5, 10, 20, 50, … and the function run again
+- the final `BenchmarkFib40` only ran twice with the average just under 1s per run
+- we can increase the minimum benchmark time using the -benchtime flag to produce a more accurate result
+
+* Benchmarking Gotchas
+
+- two examples of a faulty benchmark...
+
+ func BenchmarkFibWrong(b *testing.B) {
+         for n := 0; n < b.N; n++ {
+                 Fib(n)
+         }
+ }
+
+ func BenchmarkFibWrong2(b *testing.B) {
+         Fib(b.N)
+ }
+
+- these benchmarks will never complete because the runtime of the benchmark increases as b.N grows
+
+* Documentation
+
+* Documentation
+- Go takes documentation seriously
+- documentation is integral to making software accessible and maintainable
+- docs should be coupled to the code so they evolve along with the code
+- historically it hasn't been so easy to produce docs
+- Python has Docstrings, Java has Javadoc ... Go has `godoc`
+- the easier it is for programmers to produce good docs, the better for everyone
+- `godoc` parses Go source code–including comments-and produces documentation as HTML or plain text
+- the result is documentation tightly coupled with the code it documents
+- conceptually related to Docstring and Javadoc but simpler
+- comments read by `godoc` are not language constructs (like Docstrings)
+- the comments don't have to have their own machine-readable syntax (like Javadoc)
+
+* How Does godoc Work?
+- to document a type/variable/constant/function/package, write a regular comment directly preceding its declaration, w/no intervening blank line
+- godoc presents that comment as text alongside the item it documents
+- for e.g., this is the documentation for `fmt.Fprint`
+
+ // Fprint formats using the default formats for its operands and writes to w.
+ // Spaces are added between operands when neither is a string.
+ // It returns the number of bytes written and any write error encountered.
+ func Fprint(w io.Writer, a ...interface{}) (n int, err error) {
+
+the above comment is a complete sentence, beginning with the name of the element it describes, which is an important convention allowing:
+
+- documentation to be generated in a variety of formats, from plain text to HTML to UNIX man pages
+- makes it read better when tools truncate it for brevity
+
+* How Does godoc Work? (cont'd)
+- comments on package declarations should provide general package documentation, and can be short–like the sort package's brief description:
+
+ // Package sort provides primitives for sorting slices and user-defined
+ // collections.
+ package sort
+
+- comments not adjacent to a top-level declaration are omitted from godoc's output
+- ...except for top-level comments beginning with the word `BUG(who)`, which are included in the Bugs section of the package documentation
+- the `who` part is the user name of someone who could provide more information
+- for e.g., this is a known issue from the bytes package:
+
+ // BUG(r): The rule Title uses for word boundaries does not handle Unicode
+ // punctuation properly.
+
+- let's try it with our stack package...
+
+* Templating
+
+* Templates
+- objects that manage some text with special placeholders called actions
+- actions are enclosed by double curly braces: {{ some action }}
+- upon executing the template, you provide it with a Go struct containing the data the placeholders need
+
+* Text Template Example
+
+.play -edit src/template.go /START OMIT/,/END OMIT/
+
+.link https://code.tutsplus.com/tutorials/text-generation-with-go-templates--cms-30441 Text Generation with Go Templates
+
+* Template Data Accessors
+- ...pull data out of (nested) structs using dotted notation
+- this example includes error checking
+
+.play -edit src/template2.go /START OMIT/,/END OMIT/
+
+* Calling Functions in Templates
+- functions elevate what can be done can done with templates
+- you can add template-specific functions, or use global functions
+.link https://golang.org/pkg/text/template/#hdr-Functions
+- `Must()` helper function makes things a bit easier...
+
+.play -edit src/template3.go
+
+* Pipelines in Templates
+- pipelines let you call multiple functions, similar to a pipeline in Bash
+
+.play -edit src/template4.go
+
+* Variables in Templates
+- variables can be used to store values for re-use
+
+.play -edit src/template5.go
+
+* More Templates
+- you can even have conditionals and loops in templates!
+- most useful for large swaths of text, otherwise could use fmt.Sprintf
+- there are also HTML templates (html/template)
+- same interface as the text template, designed to generate HTML safe from code injection
+- safety performed by carefully sanitizing the data before embedding it in the template
+- assumption is that template authors are trusted, but data provided to template can't be trusted
+
+* Resources
+.link https://golang.org/doc/ Official Docs
+.link https://play.golang.org/ Playground
+.link https://tour.golang.org/welcome/1 Tour of Go
+.link https://golang.org/doc/effective_go.html Effective Go
+.link https://blog.golang.org/concurrency-is-not-parallelism Concurrency is not Parallelism
+.link https://commandcenter.blogspot.com/2012/06/less-is-exponentially-more.html Less is Exponentially More
+
+#* after Closing Channels
+#-Do we need to add Timers/Tickers/Worker Pools? Perhaps.

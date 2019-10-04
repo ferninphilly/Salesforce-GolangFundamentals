@@ -1,0 +1,363 @@
+Golang Targeted Topics Part 2: Control/Data Structures
+"Go is expressive, concise, clean, and efficient"
+24 Jan 2019
+
+Dave Wade-Stein
+DevelopIntelligence
+dws@developintelligence.com
+http://www.developintelligence.com
+
+* Control Structures
+
+* if / else
+- no parentheses required
+- braces always required
+- else clause is of course optional
+
+.play -edit src/if.go
+
+* if / else (cont'd)
+- a statement can precede conditionals
+- any variables declared in this statement are available in all branches
+
+.play -edit src/if2.go
+
+* switch Statement
+- express conditionals across many branches
+- no parens
+- multiple expressions allowed
+
+.play -edit src/switch.go
+
+* switch: Multiple Expressions
+
+.play -edit src/switch2.go
+
+* switch: Invoke a Function
+
+.play -edit src/switch3.go
+
+* switch: Condition Omitted
+
+- condition can be omitted altogether, simulating an if
+- ...or think of it as switch true
+
+.play -edit src/switch4.go /START OMIT/,/END OMIT/
+
+* switch: fallthrough
+
+- in C, each branch of a switch statement must be terminated with a `break` statement, or else execution will "fall through" to the next branch once a branch is executed
+- in Go, if you want to fall through, you must explicitly state it
+
+.play -edit src/switch5.go /START OMIT/,/END OMIT
+
+* Exercise: Fizzbuzz
+
+Write a function which accepts an integer and returns
+
+- "fizz" if the number is divisible by 3
+- "buzz" if the number is divisible by 5
+- "fizzbuzz" if the number is divisible by BOTH 3 and 5
+- otherwise it just returns the string version of the number, e.g., "4"
+
+Test your function with these inputs: 3, 5, 15, 4
+
+* for Loop
+
+Go only has one looping construct
+
+basic for loop looks as it does in C/C++/Java, except
+
+- no parens
+
+- braces required
+
+- as in C/C++/Java, you can have empty pre and post statements
+
+.play -edit src/for.go /START OMIT/,/END OMIT
+
+* Exercise: for Loops
+
+implement a square root function using Newton's method:
+
+- starting with some guess for the square root of x, we can adjust it based on how close guess² is to x, producing a better guess:
+
+- guess = guess − (guess² − x) / (2 * guess)
+
+- repeating the above makes the guess better and better
+
+- use a starting guess of 1.0, regardless of the input (it works quite well)
+
+- repeat the calculation 10 times and print each guess along the way
+
+* for Loop: Empty Pre Statement
+
+.play -edit src/for2.go
+
+* for loop as while loop
+
+.play -edit src/for3.go
+
+* Exercise: for Loop as while Loop
+
+- modify your square root function such that the loop terminates once the value has stopped changing (or only changes by a very small amount)
+
+- see how many iterations it takes
+
+- how close are your function's results to `math.Sqrt` in the standard library?
+
+* for loop as Infinite Loop
+
+- as we are no doubt used to from other languages, we can break out of the enclosing loop with the keyword `break` 
+
+.play -edit src/for4.go
+
+* Exercise: for Loop as Infinite Loop
+
+- combine the `strconv` exercise with an infinite loop so your code reads a line of input from the user, expecting it to be an integer 
+- if you can't convert to an integer, print an error message and prompt the user again
+- stop when the user complies
+
+* continue Statement
+
+- skips the current iteration of the loop
+
+- you don't really need continue, since any code written with a continue can be written without one
+- they can be handy in cases where you don't want to execute the loop until you've checked some error conditions
+
+.play -edit src/continue.go
+
+* goto ("Considered Harmful")
+
+.image https://imgs.xkcd.com/comics/goto.png
+
+.link https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf Edsger Dijkstra - Go To Statement Considered Harmful
+
+.link https://www.cs.utexas.edu/users/EWD/ewd02xx/EWD215.PDF A Case against the GO TO Statement
+
+- Go has a goto statement–judicious use of it makes your code easier to understand
+
+- jump to a named label
+
+- must not skip over any variable declarations
+
+- a goto outside a block cannot jump to a label inside that block
+
+* goto Statement: Cleanly Exiting a Function
+- you may allocate resources and need to exit in multiple places
+- putting cleanup code at end of the function with goto simplifies code
+- you don't have to write cleanup code at every "exit point" of function
+
+* goto Statement: Cleanly Exiting a Function (example)
+
+.code src/goto.go
+
+* break with a Label
+
+- useful inside multiple nested loops
+
+.play -edit src/breaklabel.go
+
+* continue with a Label
+
+.play -edit src/continuelabel.go
+
+* defer
+`defer` pushes a function call onto a list, and the saved calls are executed after the surrounding function returns
+
+commonly used to simplify functions with cleanup actions
+
+three rules
+
+- deferred function's arguments are evaluated when the defer statement is evaluated
+
+- deferred function calls are executed in Last In First Out order
+
+- deferred functions may read/assign to the returning function's named return values
+
+.play -edit src/defer.go /START OMIT/,/END OMIT/
+
+* Exercise: defer
+
+- write a program which repeatedly asks to enter a word
+- your program should quit when the user enters "quit"
+- if the length of the word is even, your program should print the word out
+- if the length of the word is odd, your program should defer the printing of the word
+
+* panic
+
+- built-in function that stops the ordinary flow of control and begins "panicking"
+- when function F calls `panic()`, execution of F stops, any deferred functions in F are executed normally, and then F returns to its caller
+- to the caller, F then behaves like a call to `panic()`
+- process continues up the stack until all functions have returned, at which point the program crashes
+- panics can also be caused by runtime errors, such as out-of-bounds array accesses
+- let's see an example of `defer` plus `panic()`...
+
+* panic (cont'd)
+
+.play -edit src/deferpluspanic.go
+
+* recover 
+- built-in function that regains control of a panicking goroutine
+- only useful inside deferred functions
+- during normal execution, a call to `recover()` will return nil and have no other effect
+- if current goroutine is panicking, a call to recover() will capture the value passed to `panic()` and resume normal execution
+- let's add `recover()` to previous example...
+
+* recover (cont'd)
+.play -edit src/deferpluspanicplusrecover.go /START OMIT/,/END OMIT/
+
+* Data Structures
+
+* Arrays
+- both type of element and length are part of the type
+- cannot be resized, but not an issue as we'll see shortly
+- zero-valued by default
+
+.play -edit src/array.go /START OMIT/,/END OMIT/
+
+* Arrays (cont'd)
+
+- no need to specify size when initializing
+
+.play -edit src/array2.go /START OMIT/,/END OMIT/
+
+* 2-D Arrays
+
+.play -edit src/array3.go /START OMIT/,/END OMIT/
+
+* Slices
+- key data type in Go
+- a more powerful interface to sequences than arrays
+- slices are typed only by elements they contain (not number of elements)
+- to create an empty slice with non-zero length, use builtin `make` function
+
+.play -edit src/slice.go /START OMIT/,/END OMIT/
+
+* Slices: append() / copy()
+- `append()` returns a new slice containing appended items
+- slices can also be `copy()`-ed
+
+.play -edit src/slice2.go /START OMIT/,/END OMIT/
+
+* Slicing Slices
+
+- slices (and arrays) support a slicing operator (much like Python)
+
+.play -edit src/slice3.go /START OMIT/,/END OMIT/
+
+* Slices vs. Arrays
+- an array type definition specifies both length and element type
+- for e.g., [4]int is an array of 4 ints
+
+.image images/go-array.png
+
+- a slice, on the other hand, is a descriptor of a segment of an array
+- a slice consists of a pointer to the array, the length of the segment, and its capacity
+
+.image images/go-slice.png
+.link https://blog.golang.org/go-slices-usage-and-internals
+
+* Slices vs. Arrays (cont'd)
+
+- consider the following slice
+
+ s := make([]byte, 5)
+
+- under the hood it looks like this
+
+.image images/go-slice-byte-5.png
+
+- what if we slice that slice?
+
+.link https://blog.golang.org/go-slices-usage-and-internals
+
+* Slices vs. Arrays (cont'd)
+
+ s = s[2:4]
+
+.image images/go-slices-byte-2-4.png
+
+ s = s[:cap(s)]
+
+.image images/go-slices-cap.png
+
+* nil Slice
+
+- an empty slice is the same as nil, the Go equivalent of NULL in other languages
+
+.play -edit src/slice4.go /START OMIT/,/END OMIT/
+
+* Exercise: Slices
+
+1. write a function `minmaxavg` which accepts a float64 slice and returns three values, the minimum value in the slice, the maximum value in the slice, and the average of all the values
+2. write a function `fib` that returns a slice containing the first n Fibonacci numbers
+
+- the Fibonacci sequence is 1, 1, 2, 3, 5, 8...
+- each number is the sum of the previous Fibonacci numbers
+- so `fib(6)` should return an int slice of size 6 containing 1, 1, 2, 3, 5, 8
+
+* Maps
+
+- Go’s built-in associative datatype (like Python dictionaries)
+- key/value pairs
+- unlike Python, a missing key does not cause an error
+
+.play -edit src/map.go /START OMIT/,/END OMIT/
+
+* Maps (cont'd)
+- we can also create an empty map and add to it later
+- `len()` returns size of map (number of key/value pairs)
+- `delete()` deletes items from a map
+
+.play -edit src/map2.go /START OMIT/,/END OMIT/
+
+* range
+- range iterates over elements in a variety of data structures
+
+.play -edit src/range.go /START OMIT/,/END OMIT/
+
+- if we don't need the index...
+
+.play -edit src/range2.go /START OMIT/,/END OMIT/
+
+* range on a Map
+
+- ...iterates over key/value pairs
+
+.play -edit src/range3.go /START OMIT/,/END OMIT/
+
+* range on a Map (cont'd)
+
+- ...or just over the keys
+
+.play -edit src/range4.go /START OMIT/,/END OMIT/
+
+* range on a string...
+- ...iterates over Unicode code points
+- the first value is the starting byte index of the rune
+- the second value is the rune itself
+
+.play -edit src/range5.go /START OMIT/,/END OMIT/
+
+* Exercise: Maps
+- use a map to translate Roman numerals into their Arabic equivalents
+- load the map with Roman numerals M (1000), D (500), C (100), L (50), X (10), V (5), I (1)
+- read in a Roman numeral
+- print Arabic equivalent
+- try it with MCLX = 1000 + 100 + 50 + 10 = 1160
+- EXTRA: if you have time, deal with the case where a smaller number precedes a larger number, e.g., XC = 100 - 10 = 90, or MCM = 1000 + (1000-100) = 1900
+
+* Additional Exercise: Maps
+- create four calculator functions: add, sub, mul, div
+- each function should take 2 integers and return an integer result
+- create a map which maps the strings representing the operators to the _functions_ 
+- that is, "+" would be mapped to `add()`, "-" would be mapped to `sub()`...
+- have your program read in lines like "2 + 4" and have it determine the result by parsing the line and then using the operator ("+" in this case) to find the appropriate function to invoke
+
+* sort Package
+- methods are specific to builtin type
+- sorting occurs in place
+
+.play -edit src/sort.go /START OMIT/,/END OMIT/
+

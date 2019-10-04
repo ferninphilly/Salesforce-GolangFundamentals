@@ -1,0 +1,565 @@
+Golang Targeted Topics Part 1: Syntax
+"Go is expressive, concise, clean, and efficient"
+23 Jan 2019
+
+Dave Wade-Stein
+DevelopIntelligence
+dws@developintelligence.com
+http://www.developintelligence.com
+
+* Overview
+
+* Objective
+
+- Who are you?
+- What is your job title?
+- What do you do here?
+- What's your programming background?
+- Who am I?
+
+* History
+- Developed at Google (2009)
+- Robert Griesemer, Rob Pike, Ken Thompson
+- Born out of frustration and shared dislike of C++
+
+* Goals
+
+- efficient compilation
+- efficient execution
+- or ease of programming
+- ...all three were not available in the same language!
+
+Programmers were choosing ease over safety and efficiency by moving to dynamically typed languages (e.g., Python and JavaScript) rather than C++ or, to a lesser extent, Java
+
+* "Did the C++ committee really believe that was wrong with C++ was that it didn't have enough features?" –Rob Pike
+
+* "False dichotomy of static languages being 'slow and painful' and dynamic languages being 'fast and fun'" –Rob Pike
+
+* Philosophy
+
+A new programming language which addressed common criticisms of other languages
+while keeping the good parts:
+
+- static typing
+- scalability to large systems (think Java, C++)
+- networking and multiprocessing
+- not requiring IDEs, but supporting them well
+
+Another goal is...speed!
+
+- should take at most a few seconds to build a large executable
+- and coding itself should be speedy
+
+
+* Philosophy (cont'd)
+
+- Programming = too much bookkeeping, repetition, and clerical work
+
+- The sophistication is worthwhile—no one wants to go back to the old languages—but can it be more quietly achieved?
+
+- Reduce the amount of _typing_ in both senses of the word
+
+- Reduce clutter and complexity
+
+- No forward declarations and no header files–everything is declared exactly once
+
+- Initialization is expressive, automatic, and easy to use 
+
+* Sweet Spots
+
+- Anywhere you need speed and scalability
+
+- Back-end (web) development
+
+- Concurrency
+
+- Systems programming (operating systems, utility software, device drivers, compilers, and linkers)
+
+* Principles
+
+Clean and Simple–Go strives to keep things small and beautiful. You should be able to do a lot in only a few lines of code.
+
+Concurrent–Easy to "fire off" functions to be run as lightweight threads.
+
+Channels–Communication with these goroutines is done, either via shared state or via channels.
+
+Fast–Compilation is fast and execution is fast. The aim is to be as fast as C. Compilation time is measured in seconds.
+
+Safe–Explicit casting and strict rules when converting one type to another. Go has garbage collection. No free()!...the language takes care of it.
+
+Standard format–A Go program can be formatted in (almost) any way the programmers want, but an official format exists. The rule is very simple: The output of the filter gofmt is the officially endorsed format.
+
+* 
+
+Postfix types–The type specification is given after the variable name, thus var a int, instead of int a.
+
+UTF-8–UTF-8 is everywhere, in strings and in the program code. Finally you can use Φ=Φ+1 in your source code.
+
+Open Source–The Go license is completely open source.
+
+Fun–Programming with Go should be fun!
+
+* Let's Get...Up and Running 
+
+* Installation
+
+1. Download from https://golang.org/dl
+
+2. Installer should put `/usr/local/go/bin` in your `$PATH` (you may need to restart any open Terminal sessions for the change to take effect)
+
+3. Create workspace dir `$HOME/go` (or set `$GOPATH` to use a different location)
+
+4. Create the directory `src/hello` inside your workspace
+
+5. Inside that directory create a file `hello.go` containing the following (OK to copy/paste)
+
+.play src/hello.go
+
+- click the `Run` button above and on any slide which has that button
+
+* Displaying this Presentation
+
+1. Install the `present` tool using the command 
+
+	go get golang.org/x/tools/cmd/present
+
+2. You should see `present` in `~/go/bin`
+
+3. Download this presentation from
+
+	http://bit.ly/Go-Targeted-Topics
+
+4. Run the `present` tool in the directory into which you downloaded the presentation
+
+	~/go/bin/present
+
+5. Navigate to
+
+	http://127.0.0.1:3999
+
+
+
+* Compiling/Running
+
+1. cd $HOME/go/src/hello
+
+2. go build
+
+- this will create an executable in your directory
+
+3. ./hello
+
+4. go install
+
+- this will install the binary in `$GOPATH/bin` (optional)
+
+- you can also compile and run in one step: go run hello.go
+
+* Compiling/Running/Packaging
+
+Go code (source and compiled) can be found in your GOPATH
+
+- if not set, defaults to ~/go
+
+`src` contains source code
+`bin` contains executables
+`pkg` contains compiled versions of the available libraries so the compiler can link against them without recompiling them
+
+go tool
+
+- go run will compile and run your code
+- go build will produce an executable
+- go install will install it in `$GOPATH/bin`
+
+
+* The Golang Playground 
+
+.link https://play.golang.org/ click here to try it
+
+- web service that runs on golang.org servers
+- receives a Go program
+- compiles, links, and runs the program inside a sandbox
+- returns the output
+- some limits on what we can do there: e.g., no keyboard input, random numbers are deterministic, time is constant (i.e., not current)
+
+* Editors
+
+many editors have Golang plugins
+
+- MacVim
+- Atom
+- Sublime
+- Eclipse
+- ...remember that Golang's philosophy is that IDEs are not required
+
+* Primitive Types
+
+* Golang Basic Types
+
+*bool* true or false
+*string* immutable
+*uint* either 32 or 64 bits
+*int* same size as uint
+*uintptr* an unsigned int large enough to store the uninterpreted bits of a pointer value
+*uint8* the set of all unsigned  8-bit integers (0 to 255)
+*uint16* the set of all unsigned 16-bit integers (0 to 65535)
+*uint32* the set of all unsigned 32-bit integers (0 to 4294967295)
+*uint64* the set of all unsigned 64-bit integers (0 to 18446744073709551615)
+*int8/int16/32/64* the set of all signed 8-/16-/32-/64-bit integers 
+*float32/64* the set of all IEEE-754 32-/64-bit floating-point numbers
+*complex64/128* set of all complex numbers with float32/64 real and imaginary parts
+*byte* alias for uint8
+*rune* alias for int32 (represents a Unicode code point)
+
+* Declaring Variables
+
+The `var` statement is used to declare one or more variables
+
+ var (
+ 	name      string
+ 	age       int
+ 	almaMater string
+ )
+
+or
+
+ var (
+ 	name, almaMater string
+ 	age             int
+ )
+
+or individually:
+
+ var name      string
+ var age       int
+ var almaMater string
+
+* Initializing
+
+all variables initialized to zero unless specified
+
+ var (
+ 	name      string = "Ranveer Singh"
+ 	age       int    = 33
+ 	almaMater string = "Indiana University"
+ )
+
+types are inferred if initializers are present
+
+ var (
+ 	name      = "Ranveer Singh"
+ 	age       =  33
+ 	almaMater = "Indiana University"
+ )
+
+single line initialization
+
+ var (
+ 	name, almaMater, age = "Ranveer Singh", "Indiana University", 33
+ )
+
+* Declaration + Initialization Shorthand
+
+- inside a function, the shorthand `:=` can be used
+
+.play src/ranveer.go /START OMIT/,/END OMIT/
+
+- outside functions, everything begins with a keyword (`var`, `func`, etc.) and the `:=` shorthand is not available
+
+* Constants
+
+- like variables, but declared with the `const` keyword (and of course can't be changed)
+- integer, floating point, string, rune, boolean, and complex numbers
+- can't use := with constants
+- type inferred if not supplied
+- typically written in `MixedCase` or all caps
+
+ const SpeedOfLight = 2.99792458e8 // meters per second
+ const PI = 3.1415926 // already defined in math package
+ const SeparatorChar rune = ':' 
+ const SpaceChar byte = ' ' 
+ const Message string = "1...2...3...Go!"
+ const (
+ 	StatusOK              = 0
+ 	StatusConnectionReset = 1
+ 	StatusOtherError      = 2
+ )
+
+* Constants (cont'd)
+
+- `iota` is a predeclared identifier that represents successive untyped integer constants
+
+.play src/constants.go /START OMIT/,/END OMIT/
+
+* Constants (cont'd)
+
+- `iota` can be used in expressions so you can do things like this
+
+ type ByteSize float64
+   
+ const (
+ 	_           = iota // ignore first value by assigning to blank identifier
+ 	KB ByteSize = 1 << (10 * iota)
+ 	MB
+ 	GB
+ 	TB
+ 	PB
+ 	EB
+ 	ZB
+ 	YB
+ )
+
+- << is the left shift operator
+- 1 << 10 = 0b1000000000 = 2^10 = 1024
+
+* Type Conversion/Casting
+
+- `T(v)` converts the value v to the type T
+
+ var p int = int(PI)
+ var f float64 = float64(p)
+ var u uint = uint(f)
+
+- no automatic type promotion (as is done in C and some other languages)
+
+- *EDIT* *THE* *CODE* to fix the problem after running the below and identifying the problem
+
+.play -edit src/typefunc.go /START OMIT/,/END OMIT/
+
+* Converting to/from Strings
+.link https://golang.org/pkg/strconv strconv package
+
+- most common conversions are `strconv.Atoi()` (ASCII to integer) and `strconv.Itoa()` (vice versa)
+- you may not use this package that often as `fmt` (which we'll see in a moment), but it's good to have in your back pocket as there are some super useful functions there
+
+* Outputting
+
+* The fmt Package
+
+as we've seen, `print` and `println` are built in to Golang
+.link https://golang.org/ref/spec#Bootstrapping ...but they may eventually go away
+
+the `fmt` package contains versions that are more flexible (and it's considered more idiomatic to use `fmt`)
+
+believe it or not, it's pronounced `fumpt`
+
+`fmt` also contains:
+
+- `Sprint/Sprintf/Sprintln` functions for printing to strings
+
+later on, we will see:
+
+- `Scan/Scanf/Scanln` functions for reading from the keyboard
+- `Sscan/Sscanf/Sscanln` functions for reading from strings
+- functions for reading/writing from/to files
+
+* fmt.Printf
+
+- formatted print a la C/C++/Java
+- %s = print a string value
+- %d = print an integer value
+
+.play -edit src/printf.go /START OMIT/,/END OMIT/
+
+* fmt.Printf (cont'd)
+- %f = print a float value
+- %v = print the value in a default format
+- %T = print the type of the variable
+- %t = print a Boolean value as true or false
+
+.play -edit src/printf2.go /START OMIT/,/END OMIT/
+
+* Packages
+
+* What's a Package?
+
+- Go was designed to encourage good software engineering practices
+
+- an important part of high quality software is code reuse
+
+- every Go program is made up of packages, which are file(s) containing functions, variables, constants, etc., but no main
+
+- every Go program file has to be associated with a package via the `package` command at the top
+
+- programs start running in package `main`
+
+ package main
+
+- by convention, the package name is the same as the last element of the import path
+
+- e.g., the `math/rand` package comprises files that begin with the statement
+ package rand
+
+* The main Package
+
+- every Go program is made up of packages
+- as we know, execution begins in package main
+- when building a standalone executable, main must exist 
+- when building a package, there won't be a main 
+
+* Importing Packages
+
+- importing makes packages available in our programs
+- packages can be given a nickname in the event of a name collision (two packages with the same name)
+- you can import a package such that you don't need to use the package name prefix when accessing functions and data inside the package (not recommended)
+
+.play -edit src/package.go
+
+* Packages: Identifiers Beginning with Upper Case Letters are Exported 
+
+- if you want something to be private, start its name with a lower case letter
+- if you want something to be public, start its name with an upper case letter
+
+.code src/example.go
+
+* Exercise: Packages
+
+- create your own package in your `$GOROOT` directory
+- be sure to export at least one function and one constant
+- build and install your package (go install)
+- write a program in different subdirectory which makes use of your package
+
+* Possibly Painful Pedantry?
+- Go complains about unused variables and imports
+- ...and the Go compiler has no warnings
+- you may be annoyed by this, but the Go team explains it well...
+
+“The presence of an unused variable may indicate a bug, while unused imports just slow down compilation, an effect that can become substantial as a program accumulates code and programmers over time. For these reasons, Go refuses to compile programs with unused variables or imports, trading short-term convenience for long-term build speed and program clarity.
+
+The reason for having no warnings. If it’s worth complaining about, it’s worth fixing in the code. And if it’s not worth fixing, it’s not worth mentioning.
+
+Nowadays, most Go programmers use a tool, `goimports`, which automatically rewrites a Go source file to have the correct imports, eliminating the unused imports issue in practice.”
+
+* Functions
+
+* Functions: Declaration, Arguments, Return Values
+
+- a named (maybe) bit of code which is typically reused
+- introduced with `func` keyword
+- accept any number of arguments, return any number of values
+
+.play src/func.go /START OMIT/,/END OMIT/
+
+* main Function
+- as we've seen, the main program must be inside a function called `main`
+- this function takes no arguments and returns nothing...
+
+ package main
+ 
+ func main() { // minimal Golang program
+ }
+
+* Returning Multiple Values
+- Go functions can return multiple values (much like Python)
+- unlike Python, types must of course be specified
+- the blank identifier `_` can be used to discard a value (also like Python)
+
+.play src/multiple.go
+
+* Exercise: Functions
+
+- write a function called `circleinfo` which accepts a float64 radius and returns two values, the area of the circle, and the circumference
+- area = PI * radius * radius
+- circumference = PI * radius * 2 
+- PI is defined in the math package
+
+* Builtin Functions
+
+- docs in https://golang.org/pkg/builtin but code is not actually in a package
+
+ func append(slice []Type, elems ...Type) []Type
+ func cap(v Type) int {} // capacity of...
+ func close(c chan<- Type) 
+ func complex(r, i FloatType) ComplexType
+ func copy(dst, src []Type) int
+ func delete(m map[Type]Type1, key Type)
+ func imag(c ComplexType) FloatType
+ func len(v Type) int
+ func make(t Type, size ...IntegerType) Type
+ func new(Type) *Type
+ func panic(v interface{})
+ func print(args ...Type)
+ func println(args ...Type)
+ func real(c ComplexType) FloatType
+ func recover() interface{}
+
+* Calling Functions
+
+- Golang is pass-by-value (like C, which was a starting point of sorts)
+
+- that means if you pass a variable or other object to a function, the function cannot change the variable/object because it receives a copy of it
+
+.play src/passbyvalue.go
+
+* How to Modify Parameters to a Function?
+
+- in order for a function to modify its parameters, the function must accept a _pointer_ to the object it wants to modify
+- a _pointer_ is a variable which contains the memory address of another variable (it is not the same thing as a _reference_
+- there are two operators for dealing with pointers
+- the & operator takes the _address_ of the object that follows it
+- the * operator _dereferences_ a pointer, that is, it gives you access to the object at the address contained in the pointer
+
+* Pointers
+
+.play src/pointer.go
+
+- now let's revisit our earlier attempt to have a function change its parameter, but this time we'll use pointers...
+
+* Pointers (cont'd)
+
+.play -edit src/passbyvalue2.go
+
+- of course we wouldn't use the intermediate variable `ptr_to_val`, it's there for instructive purposes
+
+* Exercise: Pointers and Functions
+
+Write a function `doubler` which takes an integer argument and doubles it
+
+- your function should not return anything, it should modify its argument directly
+- write a main program to test your function
+
+* Functions as Arguments
+
+.play src/funcasarg.go
+
+* User Inputs
+
+* Command-Line Args
+
+- import the `os` package to gain access to the command-line arguments
+- `os.Args` is an array of strings that we can inspect
+- we can't run these in the playground–we need to compile and run locally, then pass command-line args
+
+.code src/clargs.go
+
+* Exercise: Command Line Args
+
+- write a program which takes two command line args representing integers and prints out their sum
+- test it on your machine since it won't run in the playground
+- hint: remember Atoi in the `strconv` package (https://golang.org/pkg/strconv)
+
+* Interactive User Input
+- `fmt` package contains `Scan`, `Scanf`, `Scanln` functions to read from keyboard
+- as with the previous examples, we can't run these examples in the playground, since they require keyboard input
+- let's start with `Scanln`, which reads until a newline is seen
+
+.code src/input.go
+
+* fmt.Scan
+- read from standard input, storing successive space-separated values into successive arguments
+- newlines count as space
+
+.code src/input2.go
+
+* fmt.Scanf
+- reads text from standard input, storing successive space-separated values into successive arguments as determined by the format string
+- newlines in the input must match newlines in the format
+- one exception: the verb %c always scans the next char in the input, even if it is a space (or tab etc.) or newline
+
+.code src/input3.go
+
+* Exercise: strconv
+
+- read in a string from the user
+- convert it to int using `strconv.Atoi()`
+- don't forget to check for errors!
