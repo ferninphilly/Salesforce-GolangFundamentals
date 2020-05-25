@@ -11,24 +11,20 @@ package main
 
 import "fmt"
 
-func printer(word string) {
-	fmt.Println(word)
-}
-
 func main() {
 	var word string
 
-loop:
+infinite:
 	for {
 		fmt.Print("Enter a word: ")
 		fmt.Scanln(&word)
 		switch {
 		case word == "quit":
-			break loop
-		case len(word) % 2 == 0:
-			printer(word)
+			break infinite
+		case len(word)%2 == 0:
+			fmt.Println(word)
 		default:
-			defer printer(word)
+			defer fmt.Println(word)
 		}
 	}
 }
